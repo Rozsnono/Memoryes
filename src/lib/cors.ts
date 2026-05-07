@@ -8,6 +8,8 @@ export function corsResponse(response: NextResponse, request: Request) {
     // 2. Define allowed origins (Add your Vercel URL here too)
     const allowedOrigins = [
         "capacitor://localhost",
+        "http://localhost",
+        "ionic://localhost",
         "http://localhost:3000",
         "https://memoryes.vercel.app"
     ];
