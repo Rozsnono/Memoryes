@@ -36,7 +36,7 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh }: any) => {
         setIsUploading(true);
         try {
             // 1. Get Signature from our API
-            const { data: signData } = await apiClient.post('/api/media/sign');
+            const { data: signData } = await apiClient.post('/api/media/sign/');
 
             // 2. Upload directly to Cloudinary
             const formData = new FormData();
@@ -53,7 +53,7 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh }: any) => {
             const cloudinaryData = await cloudinaryRes.json();
 
             // 3. Save to MongoDB
-            await apiClient.post('/api/memories', {
+            await apiClient.post('/api/memories/', {
                 title,
                 spaceId: "family_vault_1",
                 creatorId: "user_123",

@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const fetchMemories = async () => {
     try {
-      const { data } = await apiClient.get('/api/memories');
+      const { data } = await apiClient.get('/api/memories/');
       setMemories(data);
     } catch (err) {
       console.error("Failed to fetch memories");

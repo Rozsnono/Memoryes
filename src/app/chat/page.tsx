@@ -21,7 +21,7 @@ export default function ChatPage() {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const { data } = await apiClient.get(`/api/messages?spaceId=${spaceId}`);
+                const { data } = await apiClient.get(`/api/messages?spaceId=${spaceId}/`);
                 setMessages(data);
                 setIsLoading(false);
             } catch (err) {
@@ -63,7 +63,7 @@ export default function ChatPage() {
         setInputText(""); // Optimistic UI: clear immediately
 
         try {
-            await apiClient.post("/api/messages", {
+            await apiClient.post("/api/messages/", {
                 spaceId: "family_vault_1", // Make sure this matches your GET request
                 senderId: "user_123",
                 senderName: "Alex",

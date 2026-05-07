@@ -22,7 +22,7 @@ export default function RegisterPage() {
             localStorage.removeItem("memoria_token");
             localStorage.removeItem("memoria_user");
 
-            const { data } = await apiClient.post("/api/auth/register", formData);
+            const { data } = await apiClient.post("/api/auth/register/", formData);
 
             // Save new credentials
             localStorage.setItem("memoria_token", data.token);

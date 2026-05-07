@@ -12,7 +12,7 @@ export const EditProfileDrawer = ({ isOpen, onClose, initialName, onUpdate }: an
     const saveName = async () => {
         setLoading(true);
         try {
-            const { data } = await apiClient.patch('/api/profile', { name });
+            const { data } = await apiClient.patch('/api/profile/', { name });
             onUpdate(data);
             onClose();
         } catch (err) {

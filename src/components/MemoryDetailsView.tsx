@@ -32,7 +32,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
         setMemory({ ...memory, isFavorite: newState });
 
         try {
-            await apiClient.patch('/api/memories/favorite', {
+            await apiClient.patch('/api/memories/favorite/', {
                 memoryId: memory._id,
                 isFavorite: newState
             });
@@ -48,7 +48,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
 
         setIsUploadingMedia(true);
         try {
-            const { data: signData } = await apiClient.post('/api/media/sign');
+            const { data: signData } = await apiClient.post('/api/media/sign/');
 
             const formData = new FormData();
             formData.append('file', file);
@@ -62,7 +62,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
             });
             const cloudData = await cloudRes.json();
 
-            const { data: updatedMemory } = await apiClient.post('/api/memories/media', {
+            const { data: updatedMemory } = await apiClient.post('/api/memories/media/', {
                 memoryId: memory._id,
                 url: cloudData.secure_url,
                 publicId: cloudData.public_id,

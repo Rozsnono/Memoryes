@@ -21,7 +21,7 @@ export default function MapPage() {
     useEffect(() => {
         const fetchMapData = async () => {
             try {
-                const { data } = await apiClient.get('/api/memories');
+                const { data } = await apiClient.get('/api/memories/');
                 setMemories(data);
                 if (data.length > 0) setSelectedMemory(data[0]);
             } catch (err) {

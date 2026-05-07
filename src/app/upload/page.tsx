@@ -44,7 +44,7 @@ export default function UploadPage() {
             const coords = await getCoords();
 
             // B. Get Secure Signature from our API
-            const { data: signData } = await apiClient.post('/api/media/sign');
+            const { data: signData } = await apiClient.post('/api/media/sign/');
 
             // C. Direct Upload to Cloudinary
             const formData = new FormData();
@@ -63,7 +63,7 @@ export default function UploadPage() {
             if (cloudData.error) throw new Error(cloudData.error.message);
 
             // D. Save Metadata to MongoDB
-            await apiClient.post('/api/memories', {
+            await apiClient.post('/api/memories/', {
                 title,
                 spaceId: "family_vault_1", // In production, get from your auth store
                 creatorId: "user_123",     // In production, get from your auth store

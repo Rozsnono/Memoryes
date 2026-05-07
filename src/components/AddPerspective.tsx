@@ -15,7 +15,7 @@ export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpd
         setIsSubmitting(true);
 
         try {
-            const { data } = await apiClient.post('/api/memories/perspective', {
+            const { data } = await apiClient.post('/api/memories/perspective/', {
                 memoryId,
                 userId: "user_123", // Dummy user
                 userName: "Alex",    // Dummy name

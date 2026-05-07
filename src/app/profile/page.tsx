@@ -47,7 +47,7 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await apiClient.get('/api/profile');
+                const { data } = await apiClient.get('/api/profile/');
                 setUser(data);
                 if (data.spaceId?.themeColor) setActiveTheme(data.spaceId.themeColor);
             } catch (err) {
@@ -67,7 +67,7 @@ export default function ProfilePage() {
         setIsUploadingAvatar(true);
         try {
             // 1. Get Secure Signature
-            const { data: signData } = await apiClient.post('/api/media/sign');
+            const { data: signData } = await apiClient.post('/api/media/sign/');
 
             // 2. Upload directly to Cloudinary
             const formData = new FormData();
@@ -84,7 +84,7 @@ export default function ProfilePage() {
             const cloudData = await cloudRes.json();
 
             // 3. Update User Profile with the new URL
-            const { data: updatedUser } = await apiClient.patch('/api/profile', {
+            const { data: updatedUser } = await apiClient.patch('/api/profile/', {
                 avatar: cloudData.secure_url
             });
 
@@ -100,7 +100,7 @@ export default function ProfilePage() {
         setActiveTheme(color);
         setIsUpdating(true);
         try {
-            await apiClient.patch('/api/profile', { themeColor: color });
+            await apiClient.patch('/api/profile/', { themeColor: color });
         } catch (err) { console.error("Theme update failed"); }
         finally { setIsUpdating(false); }
     };
@@ -115,7 +115,7 @@ export default function ProfilePage() {
                 description: "Please authenticate",
             });
             if (verified) {
-                const { data } = await apiClient.patch('/api/profile', { bioEnabled: !user.bioEnabled });
+                const { data } = await apiClient.patch('/api/profile/', { bioEnabled: !user.bioEnabled });
                 setUser(data);
             }
         } catch (err) { console.log("Biometric failed"); }
@@ -295,7 +295,7 @@ function EditProfileModal({ user, onClose, onUpdate }: any) {
     const saveChanges = async () => {
         setIsSaving(true);
         try {
-            const { data } = await apiClient.patch('/api/profile', { name });
+            const { data } = await apiClient.patch('/api/profile/', { name });
             onUpdate(data);
             onClose();
         } catch (err) { alert("Update failed"); }
