@@ -7,10 +7,12 @@ import apiClient from "@/lib/apiClient";
 import { Navbar } from "@/components/ui/Navbar";
 import { UploadMemory } from "@/components/UploadMemory";
 import { MemoryDetailsView } from "@/components/MemoryDetailsView";
+import { SpaceSwitcher } from "@/components/SpaceSwitcher";
 
 export default function Dashboard() {
   const [memories, setMemories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,19 +22,22 @@ export default function Dashboard() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [selectedMemory, setSelectedMemory] = useState<any | null>(null);
 
-  const fetchMemories = async () => {
+
+  const fetchData = async () => {
     try {
-      const { data } = await apiClient.get('/api/memories/');
-      setMemories(data);
+      // 1. Get current user & their spaces
+      const { data: userData } = await apiClient.get('/api/auth/me/');
+      setUser(userData);
+      // 2. Fetch memories for the ACTIVE space only
+      const { data: memData } = await apiClient.get(`/api/memories?spaceId=${userData.activeSpace}/`);
+      setMemories(memData);
     } catch (err) {
-      console.error("Failed to fetch memories");
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchMemories();
+    fetchData();
   }, []);
 
   // --- FIXED SEARCH & FILTER LOGIC ---
@@ -55,6 +60,17 @@ export default function Dashboard() {
     <div className="min-h-screen bg-memoria-background pb-32">
       {/* HEADER SECTION */}
       <header className="p-6 pt-16 space-y-6 sticky top-0 bg-memoria-background/90 backdrop-blur-md z-40">
+        <div className="flex justify-between items-center">
+          {/* RENDER THE SPACE SWITCHER HERE */}
+          {user && <SpaceSwitcher user={user} onSwitch={(updatedUser: any) => {
+            setUser(updatedUser);
+            // Re-fetch memories for the new active space
+            apiClient.get(`/api/memories?spaceId=${updatedUser.activeSpace}`)
+              .then(res => setMemories(res.data));
+          }} />}
+
+          <button onClick={() => setIsUploadOpen(true)} className="..."> <Plus /> </button>
+        </div>
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-serif text-memoria-clay italic leading-none">Vault</h1>
@@ -96,8 +112,8 @@ export default function Dashboard() {
           <button
             onClick={() => setShowPinnedOnly(false)}
             className={`px-6 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${!showPinnedOnly
-                ? "bg-memoria-clay text-white border-memoria-clay shadow-md"
-                : "bg-white text-slate-400 border-slate-100"
+              ? "bg-memoria-clay text-white border-memoria-clay shadow-md"
+              : "bg-white text-slate-400 border-slate-100"
               }`}
           >
             All Moments
@@ -105,8 +121,8 @@ export default function Dashboard() {
           <button
             onClick={() => setShowPinnedOnly(true)}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${showPinnedOnly
-                ? "bg-memoria-primary text-white border-memoria-primary shadow-md"
-                : "bg-white text-slate-400 border-slate-100"
+              ? "bg-memoria-primary text-white border-memoria-primary shadow-md"
+              : "bg-white text-slate-400 border-slate-100"
               }`}
           >
             <Pin size={12} fill={showPinnedOnly ? "currentColor" : "none"} />
@@ -178,7 +194,7 @@ export default function Dashboard() {
       </main>
 
       {/* MODALS */}
-      <UploadMemory isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onRefresh={fetchMemories} />
+      <UploadMemory isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onRefresh={fetchData} />
       <MemoryDetailsView memory={selectedMemory} isOpen={!!selectedMemory} onClose={() => setSelectedMemory(null)} />
       <Navbar />
     </div>

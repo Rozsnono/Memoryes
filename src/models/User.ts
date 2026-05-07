@@ -7,10 +7,9 @@ const UserSchema = new Schema({
     password: { type: String, required: true }, // Hashed password
     avatar: String,
     mode: { type: String, enum: ['personal', 'couple', 'family'], default: 'personal' },
-    spaceId: {
-        type: Schema.Types.ObjectId, // Change to String if you are using dummy IDs
-        ref: 'Space' // This MUST match the model name in Space.ts
-    }
+    spaces: [{ type: Schema.Types.ObjectId, ref: 'Space' }],
+    // Track which space is currently being viewed
+    activeSpace: { type: Schema.Types.ObjectId, ref: 'Space' }
 }, { timestamps: true });
 
 export const User = models.User || model('User', UserSchema);

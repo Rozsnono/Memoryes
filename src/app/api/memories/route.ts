@@ -11,12 +11,17 @@ export async function OPTIONS(request: Request) {
 }
 
 export async function GET(req: Request) {
-    
+
     try {
         await connectDB();
         // Fetch memories that have location data
+        const { searchParams } = new URL(req.url);
+        const spaceId = searchParams.get('spaceId'); // Get spaceId from URL
+
+        if (!spaceId) return corsResponse(NextResponse.json({ error: "Space ID required" }, { status: 400 }), req);
+
         const memories = await Memory.find({
-            "location.coordinates": { $exists: true, $ne: [] }
+            "location.coordinates": { $exists: true, $ne: [] }, spaceId
         }).sort({ capturedAt: 1 }); // Sort by time to create the "path"
 
         return corsResponse(NextResponse.json(memories), req);
@@ -26,7 +31,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    
+
     try {
         await connectDB();
         const body = await req.json();

@@ -44,7 +44,8 @@ export async function POST(req: Request) {
             email,
             password: hashedPassword,
             mode: mode || 'personal',
-            spaceId
+            spaces: [spaceId],
+            activeSpace: spaceId
         });
 
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '30d' });
