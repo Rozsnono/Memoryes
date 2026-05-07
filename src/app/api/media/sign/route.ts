@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
-export const dynamic = 'force-dynamic';
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,6 +16,7 @@ export async function OPTIONS() {
 }
 
 export async function POST() {
+    
     try {
         const timestamp = Math.round(new Date().getTime() / 1000);
 

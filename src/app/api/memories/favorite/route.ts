@@ -4,13 +4,14 @@ import { Memory } from '@/models/Memory';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function OPTIONS() {
     return handleOptions();
 }
 
 export async function PATCH(req: Request) {
+    
     try {
         await connectDB();
         const { memoryId, isFavorite } = await req.json();

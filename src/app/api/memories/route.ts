@@ -4,13 +4,14 @@ import { Memory } from '@/models/Memory';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function OPTIONS() {
     return handleOptions();
 }
 
 export async function GET() {
+    
     try {
         await connectDB();
         // Fetch memories that have location data
@@ -25,6 +26,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+    
     try {
         await connectDB();
         const body = await req.json();

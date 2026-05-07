@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
-export const dynamic = 'force-dynamic';
 
 export async function OPTIONS() {
     return handleOptions();

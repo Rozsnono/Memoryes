@@ -5,13 +5,14 @@ import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
 // CRITICAL: This prevents the 'output: export' error
-export const dynamic = 'force-dynamic';
+
 
 export async function OPTIONS() {
     return handleOptions();
 }
 
 export async function POST(req: Request) {
+    
     try {
         await connectDB();
         const body = await req.json();
@@ -41,6 +42,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+    
     try {
         await connectDB();
         const { searchParams } = new URL(req.url);

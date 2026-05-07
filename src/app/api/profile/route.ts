@@ -6,13 +6,14 @@ import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 import jwt from 'jsonwebtoken';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function OPTIONS() {
     return handleOptions();
 }
 
 export async function GET(req: Request) {
+    
     try {
         await connectDB();
 
@@ -35,6 +36,7 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+    
     try {
         await connectDB();
         const body = await req.json(); // Expected: { name, avatar, bioEnabled, themeColor }

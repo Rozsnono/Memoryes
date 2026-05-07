@@ -5,13 +5,14 @@ import { User } from '@/models/User';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function OPTIONS() {
     return handleOptions();
 }
 
 export async function POST(req: Request) {
+    
     try {
         await connectDB();
         const { inviteCode, userId } = await req.json();
