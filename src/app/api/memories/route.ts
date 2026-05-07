@@ -21,8 +21,12 @@ export async function GET(req: Request) {
         if (!spaceId) return corsResponse(NextResponse.json({ error: "Space ID required" }, { status: 400 }), req);
 
         const memories = await Memory.find({
-            "location.coordinates": { $exists: true, $ne: [] }, spaceId
+            $and: [
+                {
+                    "spaceId": spaceId
+                }]
         }).sort({ capturedAt: 1 }); // Sort by time to create the "path"
+
 
         return corsResponse(NextResponse.json(memories), req);
     } catch (error: any) {

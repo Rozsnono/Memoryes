@@ -14,7 +14,10 @@ import {
     Camera,
     ShieldCheck,
     Loader2,
-    X
+    X,
+    ChevronDown,
+    LayoutGrid,
+    Plus
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
@@ -36,9 +39,11 @@ export default function ProfilePage() {
     // Data State
     const [user, setUser] = useState<any>(null);
     const [activeTheme, setActiveTheme] = useState("#9B86BD");
+    const [activeSpace, setActiveSpace] = useState<any>(null);
 
     // UI States
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
     const [copied, setCopied] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -49,7 +54,10 @@ export default function ProfilePage() {
             try {
                 const { data } = await apiClient.get('/api/profile/');
                 setUser(data);
-                if (data.spaceId?.themeColor) setActiveTheme(data.spaceId.themeColor);
+                // Find the object for the active space from the spaces array
+                const current = data.spaces.find((s: any) => s._id === data.activeSpace);
+                setActiveSpace(current);
+                if (current?.themeColor) setActiveTheme(current.themeColor);
             } catch (err) {
                 console.error("Profile fetch failed");
             } finally {
@@ -59,6 +67,23 @@ export default function ProfilePage() {
         fetchProfile();
     }, []);
 
+    // --- SPACE SWITCHER LOGIC ---
+    const handleSwitchSpace = async (spaceId: string) => {
+        setIsUpdating(true);
+        try {
+            const { data } = await apiClient.post('/api/spaces/switch/', { spaceId });
+            setUser(data);
+            const newActive = data.spaces.find((s: any) => s._id === data.activeSpace);
+            setActiveSpace(newActive);
+            if (newActive?.themeColor) setActiveTheme(newActive.themeColor);
+            setIsSwitcherOpen(false);
+        } catch (err) {
+            alert("Failed to switch space");
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
     // --- AVATAR UPLOAD LOGIC ---
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -66,10 +91,7 @@ export default function ProfilePage() {
 
         setIsUploadingAvatar(true);
         try {
-            // 1. Get Secure Signature
             const { data: signData } = await apiClient.post('/api/media/sign/');
-
-            // 2. Upload directly to Cloudinary
             const formData = new FormData();
             formData.append('file', file);
             formData.append('api_key', signData.apiKey);
@@ -83,7 +105,6 @@ export default function ProfilePage() {
             );
             const cloudData = await cloudRes.json();
 
-            // 3. Update User Profile with the new URL
             const { data: updatedUser } = await apiClient.patch('/api/profile/', {
                 avatar: cloudData.secure_url
             });
@@ -142,28 +163,19 @@ export default function ProfilePage() {
                         animate={{ backgroundColor: activeTheme }}
                         className="w-32 h-32 rounded-[2.8rem] p-1 shadow-2xl transition-colors duration-500 relative"
                     >
-                        {/* Loading Overlay for Avatar */}
                         {isUploadingAvatar && (
                             <div className="absolute inset-1 rounded-[2.5rem] bg-black/40 z-10 flex items-center justify-center backdrop-blur-sm">
                                 <Loader2 className="animate-spin text-white" size={24} />
                             </div>
                         )}
-
                         <img
                             src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                            className="w-full h-full rounded-[2.5rem] border-4 border-white object-cover bg-white"
+                            className="w-full h-full rounded-[2.5rem] border-4 border-white object-cover bg-white shadow-inner"
                             alt="Avatar"
                         />
                     </motion.div>
 
-                    {/* Invisible File Input */}
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
-                    />
+                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />
 
                     <button
                         onClick={() => fileInputRef.current?.click()}
@@ -172,15 +184,65 @@ export default function ProfilePage() {
                         <Camera size={18} />
                     </button>
                 </div>
+
                 <h2 className="text-3xl font-serif italic text-memoria-clay">{user.name}</h2>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mt-2 italic">
-                    {user.mode} Space
-                </p>
+
+                {/* --- SPACE SWITCHER BUTTON --- */}
+                <div className="mt-3 relative">
+                    <button
+                        onClick={() => setIsSwitcherOpen(!isSwitcherOpen)}
+                        className="flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-slate-100 shadow-sm active:scale-95 transition-all"
+                    >
+                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: activeTheme }} />
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[2px]">
+                            {activeSpace?.name || "Select Space"}
+                        </span>
+                        <ChevronDown size={14} className={`text-slate-300 transition-transform ${isSwitcherOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                        {isSwitcherOpen && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setIsSwitcherOpen(false)} />
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-56 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-2 z-50 overflow-hidden"
+                                >
+                                    <div className="space-y-1">
+                                        {user.spaces?.map((space: any) => (
+                                            <button
+                                                key={space._id}
+                                                onClick={() => handleSwitchSpace(space._id)}
+                                                className={`w-full flex items-center justify-between p-3 rounded-2xl transition-colors ${space._id === user.activeSpace ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: space.themeColor }}>
+                                                        <LayoutGrid size={14} />
+                                                    </div>
+                                                    <span className={`text-[11px] font-bold ${space._id === user.activeSpace ? 'text-memoria-clay' : 'text-slate-400'}`}>
+                                                        {space.name}
+                                                    </span>
+                                                </div>
+                                                {space._id === user.activeSpace && <Check size={14} className="text-emerald-500" />}
+                                            </button>
+                                        ))}
+                                        <button className="w-full mt-1 flex items-center gap-3 p-3 rounded-2xl text-slate-300 border-t border-slate-50 pt-3">
+                                            <Plus size={14} />
+                                            <span className="text-[11px] font-bold">New Vault</span>
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+                </div>
             </header>
 
             <section className="px-6 space-y-8">
                 {/* --- INVITE CARD --- */}
-                {user.mode !== 'personal' && (
+                {activeSpace?.type !== 'personal' && (
                     <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-slate-100 relative overflow-hidden">
                         <div className="flex justify-between items-center mb-4 text-slate-300">
                             <span className="text-[10px] font-black uppercase tracking-widest">Space Invite Code</span>
@@ -188,11 +250,12 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex items-center justify-between bg-slate-50 rounded-[1.5rem] p-4 border border-slate-100">
                             <span className="text-2xl font-mono font-bold tracking-[0.3em] text-memoria-clay ml-2">
-                                {user.spaceId?.inviteCode || "------"}
+                                {activeSpace?.inviteCode || "------"}
                             </span>
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText(user.spaceId.inviteCode);
+                                    if (!activeSpace?.inviteCode) return;
+                                    navigator.clipboard.writeText(activeSpace.inviteCode);
                                     setCopied(true);
                                     setTimeout(() => setCopied(false), 2000);
                                 }}
@@ -219,6 +282,11 @@ export default function ProfilePage() {
                                 style={{ backgroundColor: t.color }}
                             />
                         ))}
+                        {isUpdating && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center rounded-[2.5rem] z-10">
+                                <Loader2 className="animate-spin text-memoria-clay" size={20} />
+                            </div>
+                        )}
                     </div>
                 </div>
 

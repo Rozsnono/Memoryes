@@ -29,8 +29,9 @@ export default function Dashboard() {
       const { data: userData } = await apiClient.get('/api/auth/me/');
       setUser(userData);
       // 2. Fetch memories for the ACTIVE space only
-      const { data: memData } = await apiClient.get(`/api/memories?spaceId=${userData.activeSpace}/`);
+      const { data: memData } = await apiClient.get(`/api/memories?spaceId=${userData.activeSpace}`);
       setMemories(memData);
+      setLoading(false);
     } catch (err) {
       console.error(err);
     }
@@ -60,17 +61,6 @@ export default function Dashboard() {
     <div className="min-h-screen bg-memoria-background pb-32">
       {/* HEADER SECTION */}
       <header className="p-6 pt-16 space-y-6 sticky top-0 bg-memoria-background/90 backdrop-blur-md z-40">
-        <div className="flex justify-between items-center">
-          {/* RENDER THE SPACE SWITCHER HERE */}
-          {user && <SpaceSwitcher user={user} onSwitch={(updatedUser: any) => {
-            setUser(updatedUser);
-            // Re-fetch memories for the new active space
-            apiClient.get(`/api/memories?spaceId=${updatedUser.activeSpace}`)
-              .then(res => setMemories(res.data));
-          }} />}
-
-          <button onClick={() => setIsUploadOpen(true)} className="..."> <Plus /> </button>
-        </div>
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-serif text-memoria-clay italic leading-none">Vault</h1>

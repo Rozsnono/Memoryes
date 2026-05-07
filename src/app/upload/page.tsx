@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Image as ImageIcon, Loader2, CheckCircle2, MapPin, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,14 +9,32 @@ import apiClient from "@/lib/apiClient";
 export default function UploadPage() {
     const router = useRouter();
 
-    // State Management
+    // Data State
+    const [user, setUser] = useState<any>(null);
+
+    // UI State Management
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [title, setTitle] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [step, setStep] = useState<'select' | 'details'>('select');
 
-    // 1. Handle File Selection
+    // 1. Fetch User and Active Space on Mount
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const { data } = await apiClient.get('/api/auth/me');
+                setUser(data);
+            } catch (err) {
+                console.error("Failed to fetch user context for upload");
+                // If not logged in, redirect to login
+                router.push('/login');
+            }
+        };
+        fetchUser();
+    }, [router]);
+
+    // 2. Handle File Selection
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
         if (selected) {
@@ -26,25 +44,29 @@ export default function UploadPage() {
         }
     };
 
-    // 2. The Upload Engine
+    // 3. The Upload Engine
     const handleFinalUpload = async () => {
         if (!file || !title) return alert("Please provide a title and image");
+        if (!user || !user.activeSpace) return alert("No active space found. Please create or join a space first.");
 
         setIsUploading(true);
         try {
-            // A. Get Geolocation (Optional)
+            // A. Get Geolocation
             const getCoords = (): Promise<number[]> => {
                 return new Promise((resolve) => {
                     navigator.geolocation.getCurrentPosition(
                         (p) => resolve([p.coords.longitude, p.coords.latitude]),
-                        () => resolve([0, 0])
+                        () => resolve([0, 0]),
+                        { timeout: 5000 }
                     );
                 });
             };
             const coords = await getCoords();
 
             // B. Get Secure Signature from our API
-            const { data: signData } = await apiClient.post('/api/media/sign/');
+            // Note: Trailing slash depends on your specific backend config, 
+            // usually better without if using App Router.
+            const { data: signData } = await apiClient.post('/api/media/sign');
 
             // C. Direct Upload to Cloudinary
             const formData = new FormData();
@@ -62,28 +84,29 @@ export default function UploadPage() {
 
             if (cloudData.error) throw new Error(cloudData.error.message);
 
-            // D. Save Metadata to MongoDB
-            await apiClient.post('/api/memories/', {
+            // D. Save Metadata to MongoDB using dynamic User & Space data
+            await apiClient.post('/api/memories', {
                 title,
-                spaceId: "family_vault_1", // In production, get from your auth store
-                creatorId: "user_123",     // In production, get from your auth store
+                spaceId: user.activeSpace, // Dynamically uses the active vault
+                creatorId: user._id,       // Dynamically uses current user ID
                 media: [{
                     url: cloudData.secure_url,
                     publicId: cloudData.public_id,
                     mediaType: 'image'
                 }],
                 location: {
-                    name: "New Memory Location",
+                    name: "Captured Location",
                     coordinates: coords
                 },
-                capturedAt: new Date()
+                capturedAt: new Date(),
+                isPinned: false // Default to not pinned
             });
 
             // E. Success & Redirect
             router.push('/dashboard');
         } catch (err: any) {
             console.error(err);
-            alert("Upload failed: " + err.message);
+            alert("Upload failed: " + (err.response?.data?.error || err.message));
         } finally {
             setIsUploading(false);
         }
@@ -99,10 +122,10 @@ export default function UploadPage() {
                 {step === 'details' && (
                     <button
                         onClick={handleFinalUpload}
-                        disabled={isUploading || !title}
-                        className="bg-white text-memoria-clay px-6 py-2 rounded-full font-bold text-sm disabled:opacity-50"
+                        disabled={isUploading || !title || !user}
+                        className="bg-white text-memoria-clay px-6 py-2 rounded-full font-bold text-sm disabled:opacity-50 flex items-center gap-2"
                     >
-                        {isUploading ? <Loader2 className="animate-spin" /> : "Share"}
+                        {isUploading ? <Loader2 className="animate-spin size={16}" /> : "Share"}
                     </button>
                 )}
             </header>
@@ -123,7 +146,7 @@ export default function UploadPage() {
 
                         <div className="grid gap-4">
                             <label className="bg-white/10 backdrop-blur-md p-8 rounded-[2.5rem] flex flex-col items-center gap-4 border border-white/10 cursor-pointer active:scale-95 transition-all">
-                                <div className="w-16 h-16 bg-white text-memoria-clay rounded-2xl flex items-center justify-center">
+                                <div className="w-16 h-16 bg-white text-memoria-clay rounded-2xl flex items-center justify-center shadow-lg">
                                     <ImageIcon size={32} />
                                 </div>
                                 <div className="text-center">
@@ -137,7 +160,7 @@ export default function UploadPage() {
                                 <div className="bg-white/10 p-3 rounded-2xl"><Camera size={24} /></div>
                                 <div>
                                     <h3 className="font-bold">Live Camera</h3>
-                                    <p className="text-xs text-slate-400">Snap a photo now</p>
+                                    <p className="text-xs text-slate-400">SNAP Feature coming soon</p>
                                 </div>
                             </div>
                         </div>
@@ -155,7 +178,9 @@ export default function UploadPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                             <div className="absolute bottom-6 left-6 right-6 flex items-center gap-2">
                                 <MapPin size={16} className="text-memoria-accent" />
-                                <span className="text-xs font-bold uppercase tracking-widest text-white/80">Tagging Location...</span>
+                                <span className="text-xs font-bold uppercase tracking-widest text-white/80">
+                                    {user?.activeSpace ? `Saving to your Active Vault` : 'Tagging Location...'}
+                                </span>
                             </div>
                         </div>
 
@@ -169,11 +194,14 @@ export default function UploadPage() {
                                 className="w-full bg-transparent border-b border-white/20 py-4 text-xl font-serif italic outline-none focus:border-white transition-colors"
                             />
 
-                            <div className="bg-white/10 p-4 rounded-2xl flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-memoria-accent flex items-center justify-center text-memoria-clay">
+                            <div className="bg-white/10 p-4 rounded-2xl flex items-center gap-3 border border-white/5">
+                                <div className="w-8 h-8 rounded-full bg-memoria-accent flex items-center justify-center text-memoria-clay shadow-sm">
                                     <CheckCircle2 size={16} />
                                 </div>
-                                <p className="text-xs text-slate-300 font-medium tracking-wide">This will be shared with the Family Vault.</p>
+                                <div className="flex-1">
+                                    <p className="text-xs text-slate-100 font-bold">Collaborative Memory</p>
+                                    <p className="text-[10px] text-slate-300">This will be visible to everyone in your current space.</p>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const apiClient = axios.create({
     // Use your production Vercel URL
-    baseURL: "https://memoryes.vercel.app",
+    baseURL:  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
     headers: {
         'Content-Type': 'application/json',
     },

@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
         // 2. Verify and find user
         const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-        const user = await User.findById(decoded.userId).populate('spaceId');
+        const user = await User.findById(decoded.userId).populate('spaces');
 
         if (!user) return corsResponse(NextResponse.json({ error: "User not found" }, { status: 404 }), req);
 
