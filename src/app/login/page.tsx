@@ -16,7 +16,7 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
         try {
-            const { data } = await apiClient.post("/api/auth/login", creds);
+            const { data } = await apiClient.post("/api/auth/login/", creds);
             localStorage.setItem("memoria_token", data.token);
             localStorage.setItem("memoria_user", JSON.stringify(data.user));
             router.push("/dashboard");

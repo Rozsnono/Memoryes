@@ -31,7 +31,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
             // 3. Scenario: Token exists -> Verify with Backend
             try {
-                await apiClient.get("/api/auth/me");
+                await apiClient.get("/api/auth/me/");
 
                 // If logged in and trying to access login/register, go to dashboard
                 if (isPublicRoute) {
