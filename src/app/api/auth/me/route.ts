@@ -1,14 +1,10 @@
 // app/api/auth/me/route.ts
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
+import { Space } from '@/models/Space';
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
-
-
-export async function OPTIONS() {
-    return handleOptions();
-}
 
 export async function GET(req: Request) {
     try {
@@ -17,6 +13,9 @@ export async function GET(req: Request) {
         // Get token from Authorization header
         const authHeader = req.headers.get('authorization');
         const token = authHeader?.split(' ')[1];
+
+        const _forceRegisterUser = User.modelName;
+        const _forceRegisterSpace = Space.modelName;
 
         if (!token) {
             return corsResponse(NextResponse.json({ error: "No token" }, { status: 401 }));
@@ -33,6 +32,7 @@ export async function GET(req: Request) {
 
         return corsResponse(NextResponse.json(user));
     } catch (error: any) {
+        console.error("GET /api/auth/me - Error:", error);
         return corsResponse(NextResponse.json({ error: "Invalid token" }, { status: 401 }));
     }
 }

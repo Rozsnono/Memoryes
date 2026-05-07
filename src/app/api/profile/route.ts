@@ -13,13 +13,16 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
-    
+
     try {
         await connectDB();
 
         // 1. Get token from headers
         const authHeader = req.headers.get('authorization');
         const token = authHeader?.split(' ')[1];
+
+        const _forceRegisterUser = User.modelName;
+        const _forceRegisterSpace = Space.modelName;
 
         if (!token) return corsResponse(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
 
@@ -36,7 +39,7 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-    
+
     try {
         await connectDB();
         const body = await req.json(); // Expected: { name, avatar, bioEnabled, themeColor }

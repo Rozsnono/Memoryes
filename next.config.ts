@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+const isMobile = process.env.EXPORT_MODE === 'true';
+
 const nextConfig = {
   // Only use 'export' when building for Capacitor/Mobile
-  output: process.env.EXPORT_MODE === 'true' ? 'export' : undefined,
+  output: isMobile ? 'export' : undefined,
   images: {
     unoptimized: true,
   },

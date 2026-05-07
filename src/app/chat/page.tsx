@@ -70,7 +70,6 @@ export default function ChatPage() {
                 text: messageText,
                 type: 'text'
             });
-            console.log("Frontend: Message sent successfully");
         } catch (err: any) {
             console.error("Frontend Error:", err.response?.data || err.message);
             alert("Failed to send: " + (err.response?.data?.error || "Network Error"));

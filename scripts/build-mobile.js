@@ -3,7 +3,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const root = path.resolve(__dirname, '..');
-const apiDir = path.join(root, 'app', 'api');
+const apiDir = path.join(root, 'src', 'app', 'api');
 const backupDir = path.join(root, 'api_backup_folder'); // Move outside of app/
 
 async function build() {
@@ -19,9 +19,9 @@ async function build() {
             fs.rmSync(path.join(root, '.next'), { recursive: true, force: true });
         }
 
-        // 3. Run build with IS_MOBILE=true
+        // 3. Run build with EXPORT_MODE=true
         console.log('Starting Mobile Export...');
-        execSync('npx cross-env IS_MOBILE=true next build', { stdio: 'inherit' });
+        execSync('npx cross-env EXPORT_MODE=true next build', { stdio: 'inherit' });
 
         console.log('Export Complete! Folder "out" is ready.');
     } catch (err) {

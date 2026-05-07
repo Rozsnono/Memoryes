@@ -70,6 +70,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
             });
 
             setMemory(updatedMemory); // Refresh carousel with new photo
+            window.location.reload(); // Temporary: Force reload to sync with other users' views
         } catch (err) {
             alert("Failed to add media");
         } finally {
