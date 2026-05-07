@@ -7,8 +7,8 @@ import { corsResponse, handleOptions } from '@/lib/cors';
 // CRITICAL: This prevents the 'output: export' error
 
 
-export async function OPTIONS() {
-    return handleOptions();
+export async function OPTIONS(request: Request) {
+    return handleOptions(request); // Pass request here
 }
 
 export async function POST(req: Request) {

@@ -6,8 +6,8 @@ import { corsResponse, handleOptions } from '@/lib/cors';
 
 
 
-export async function OPTIONS() {
-    return handleOptions();
+export async function OPTIONS(request: Request) {
+    return handleOptions(request); // Pass request here
 }
 
 export async function PATCH(req: Request) {

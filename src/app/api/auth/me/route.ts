@@ -6,6 +6,10 @@ import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 import { corsResponse, handleOptions } from '@/lib/cors';
 
+export async function OPTIONS(request: Request) {
+    return handleOptions(request); // Pass request here
+}
+
 export async function GET(req: Request) {
     try {
         await connectDB();

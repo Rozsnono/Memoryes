@@ -11,8 +11,8 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function OPTIONS() {
-    return handleOptions();
+export async function OPTIONS(request: Request) {
+    return handleOptions(request); // Pass request here
 }
 
 export async function POST() {
