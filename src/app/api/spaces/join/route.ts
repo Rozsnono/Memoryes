@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         // 1. Find the space with this code
         const targetSpace = await Space.findOne({ inviteCode });
         if (!targetSpace) {
-            return corsResponse(NextResponse.json({ error: "Invalid invite code" }, { status: 404 }));
+            return corsResponse(NextResponse.json({ error: "Invalid invite code" }, { status: 404 }), req);
         }
 
         // 2. Add user to Space members
@@ -37,9 +37,9 @@ export async function POST(req: Request) {
         return corsResponse(NextResponse.json({
             message: "Successfully joined the vault!",
             user: updatedUser
-        }));
+        }, { status: 200 }), req);
 
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

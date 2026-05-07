@@ -24,17 +24,17 @@ export async function GET(req: Request) {
         const _forceRegisterUser = User.modelName;
         const _forceRegisterSpace = Space.modelName;
 
-        if (!token) return corsResponse(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+        if (!token) return corsResponse(NextResponse.json({ error: "Unauthorized" }, { status: 401 }), req);
 
         // 2. Verify and find user
         const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
         const user = await User.findById(decoded.userId).populate('spaceId');
 
-        if (!user) return corsResponse(NextResponse.json({ error: "User not found" }, { status: 404 }));
+        if (!user) return corsResponse(NextResponse.json({ error: "User not found" }, { status: 404 }), req);
 
-        return corsResponse(NextResponse.json(user));
+        return corsResponse(NextResponse.json(user), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: "Invalid session" }, { status: 401 }));
+        return corsResponse(NextResponse.json({ error: "Invalid session" }, { status: 401 }), req);
     }
 }
 
@@ -60,8 +60,8 @@ export async function PATCH(req: Request) {
             { new: true }
         ).populate('spaceId');
 
-        return corsResponse(NextResponse.json(user));
+        return corsResponse(NextResponse.json(user), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

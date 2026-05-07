@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         const body = await req.json();
 
         if (!body.text || !body.spaceId || !body.senderName) {
-            return corsResponse(NextResponse.json({ error: "Missing fields" }, { status: 400 }));
+            return corsResponse(NextResponse.json({ error: "Missing fields" }, { status: 400 }), req);
         }
 
         const newMessage = await Message.create({
@@ -35,9 +35,9 @@ export async function POST(req: Request) {
             console.error("Pusher Error:", pusherError);
         }
 
-        return corsResponse(NextResponse.json(newMessage, { status: 201 }));
+        return corsResponse(NextResponse.json(newMessage, { status: 201 }), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }
 
@@ -49,8 +49,8 @@ export async function GET(req: Request) {
         const spaceId = searchParams.get('spaceId') || 'family_vault_1';
 
         const messages = await Message.find({ spaceId }).sort({ createdAt: 1 });
-        return corsResponse(NextResponse.json(messages));
+        return corsResponse(NextResponse.json(messages), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

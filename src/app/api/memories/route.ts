@@ -10,7 +10,7 @@ export async function OPTIONS(request: Request) {
     return handleOptions(request); // Pass request here
 }
 
-export async function GET() {
+export async function GET(req: Request) {
     
     try {
         await connectDB();
@@ -19,9 +19,9 @@ export async function GET() {
             "location.coordinates": { $exists: true, $ne: [] }
         }).sort({ capturedAt: 1 }); // Sort by time to create the "path"
 
-        return corsResponse(NextResponse.json(memories));
+        return corsResponse(NextResponse.json(memories), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }
 
@@ -34,8 +34,8 @@ export async function POST(req: Request) {
         // Create memory with the data sent from the Upload component
         const newMemory = await Memory.create(body);
 
-        return corsResponse(NextResponse.json(newMemory, { status: 201 }));
+        return corsResponse(NextResponse.json(newMemory, { status: 201 }), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

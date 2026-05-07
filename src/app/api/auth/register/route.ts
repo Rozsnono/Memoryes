@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return corsResponse(NextResponse.json({ error: "User already exists" }, { status: 400 }));
+            return corsResponse(NextResponse.json({ error: "User already exists" }, { status: 400 }), req);
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         if (inviteCode) {
             // JOINING EXISTING SPACE
             const space = await Space.findOne({ inviteCode: inviteCode.toUpperCase() });
-            if (!space) return corsResponse(NextResponse.json({ error: "Invalid invite code" }, { status: 400 }));
+            if (!space) return corsResponse(NextResponse.json({ error: "Invalid invite code" }, { status: 400 }), req);
             spaceId = space._id;
         } else {
             // CREATING NEW SPACE
@@ -49,9 +49,9 @@ export async function POST(req: Request) {
 
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '30d' });
 
-        return corsResponse(NextResponse.json({ token, user: newUser }, { status: 201 }));
+        return corsResponse(NextResponse.json({ token, user: newUser }, { status: 201 }), req);
 
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

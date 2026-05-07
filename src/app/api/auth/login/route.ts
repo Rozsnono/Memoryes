@@ -18,12 +18,12 @@ export async function POST(req: Request) {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }));
+            return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }), req);
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }));
+            return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }), req);
         }
 
         const token = jwt.sign(
@@ -35,9 +35,9 @@ export async function POST(req: Request) {
         return corsResponse(NextResponse.json({
             token,
             user: { id: user._id, name: user.name, email: user.email, mode: user.mode, spaceId: user.spaceId }
-        }));
+        }), req);
 
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

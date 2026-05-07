@@ -22,8 +22,8 @@ export async function PATCH(req: Request) {
             { new: true }
         );
 
-        return corsResponse(NextResponse.json(updatedMemory, { status: 200 }));
+        return corsResponse(NextResponse.json(updatedMemory, { status: 200 }), req);
     } catch (error: any) {
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

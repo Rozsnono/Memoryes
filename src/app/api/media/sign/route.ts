@@ -15,8 +15,8 @@ export async function OPTIONS(request: Request) {
     return handleOptions(request); // Pass request here
 }
 
-export async function POST() {
-    
+export async function POST(req: Request) {
+
     try {
         const timestamp = Math.round(new Date().getTime() / 1000);
 
@@ -36,9 +36,9 @@ export async function POST() {
             timestamp,
             cloudName: process.env.CLOUDINARY_CLOUD_NAME,
             apiKey: process.env.CLOUDINARY_API_KEY,
-        }));
+        }), req);
     } catch (error: any) {
         console.error("Cloudinary Signature Error:", error.message);
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }

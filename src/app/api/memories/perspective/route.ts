@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         const { memoryId, userId, userName, content } = await req.json();
 
         if (!memoryId || !content) {
-            return corsResponse(NextResponse.json({ error: "Missing data" }, { status: 400 }));
+            return corsResponse(NextResponse.json({ error: "Missing data" }, { status: 400 }), req);
         }
 
         // Find the memory and push the new perspective into the array
@@ -36,9 +36,9 @@ export async function POST(req: Request) {
             { new: true } // Return the updated document
         );
 
-        return corsResponse(NextResponse.json(updatedMemory, { status: 200 }));
+        return corsResponse(NextResponse.json(updatedMemory, { status: 200 }), req);
     } catch (error: any) {
         console.error("PERSPECTIVE ERROR:", error.message);
-        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }));
+        return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }
