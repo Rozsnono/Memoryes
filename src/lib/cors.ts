@@ -19,7 +19,7 @@ export function corsResponse(response: NextResponse, request: Request) {
     } else {
         // Fallback for safety, but this might block Auth. 
         // It's better to echo the origin if it exists.
-        response.headers.set("Access-Control-Allow-Origin", origin || "*");
+        response.headers.set("Access-Control-Allow-Origin", origin || "https://memoryes.vercel.app");
     }
 
     // 4. Critical Headers for Vercel + Authorization

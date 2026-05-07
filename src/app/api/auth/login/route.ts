@@ -8,7 +8,6 @@ import { corsResponse, handleOptions } from '@/lib/cors';
 
 
 export async function OPTIONS(request: Request) {
-    return new NextResponse(null, { status: 200 }); // Handle preflight CORS requests
     return handleOptions(request); // Pass request here
 }
 
@@ -19,13 +18,11 @@ export async function POST(req: Request) {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
             return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }), req);
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
             return corsResponse(NextResponse.json({ error: "Invalid credentials" }, { status: 400 }), req);
         }
 
@@ -35,17 +32,12 @@ export async function POST(req: Request) {
             { expiresIn: '30d' }
         );
 
-        return NextResponse.json({
-            token,
-            user: { id: user._id, name: user.name, email: user.email, mode: user.mode, spaceId: user.spaceId }
-        }, { status: 200 });
         return corsResponse(NextResponse.json({
             token,
             user: { id: user._id, name: user.name, email: user.email, mode: user.mode, spaceId: user.spaceId }
         }), req);
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
         return corsResponse(NextResponse.json({ error: error.message }, { status: 500 }), req);
     }
 }
