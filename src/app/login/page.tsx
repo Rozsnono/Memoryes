@@ -1,24 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
+import { Capacitor } from '@capacitor/core';
+import { useNativePermissions } from "@/hooks/usePermissions";
 
 export default function LoginPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [creds, setCreds] = useState({ email: "", password: "" });
 
+    const { requestAllPermissions } = useNativePermissions();
+
+    useEffect(() => {
+        // Only trigger on real devices to avoid browser errors
+        if (Capacitor.isNativePlatform()) {
+            const askPermissions = async () => {
+                console.log("Requesting system permissions...");
+                const results = await requestAllPermissions();
+                console.log("Permissions status:", results);
+            };
+
+            askPermissions();
+        }
+    }, []);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
             const { data } = await apiClient.post("/api/auth/login/", creds);
-            localStorage.setItem("memoria_token", data.token);
-            localStorage.setItem("memoria_user", JSON.stringify(data.user));
+            localStorage.setItem("memoryes_token", data.token);
+            localStorage.setItem("memoryes_user", JSON.stringify(data.user));
             router.push("/dashboard");
         } catch (err: any) {
             alert(JSON.stringify(err.response?.status) || "Login failed");
@@ -28,9 +45,9 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-memoria-background p-8 flex flex-col justify-center">
+        <div className="min-h-screen bg-memoryes-background p-8 flex flex-col justify-center">
             <div className="mb-12">
-                <h1 className="text-4xl font-serif italic text-memoria-clay">Welcome back</h1>
+                <h1 className="text-4xl font-serif italic text-memoryes-clay">Welcome back</h1>
                 <p className="text-slate-400 text-sm mt-2">Your memories are waiting.</p>
             </div>
 
@@ -49,14 +66,14 @@ export default function LoginPage() {
                         <input type="password" placeholder="••••••••" className="bg-transparent outline-none text-sm w-full" value={creds.password} onChange={e => setCreds({ ...creds, password: e.target.value })} />
                     </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full bg-memoria-clay text-white py-4 rounded-[1.5rem] font-bold shadow-lg flex items-center justify-center gap-2 mt-6">
+                <button type="submit" disabled={loading} className="w-full bg-memoryes-clay text-white py-4 rounded-[1.5rem] font-bold shadow-lg flex items-center justify-center gap-2 mt-6">
                     {loading ? <Loader2 className="animate-spin" /> : <LogIn size={18} />}
                     {loading ? "Verifying..." : "Unlock Vault"}
                 </button>
             </form>
 
             <p className="text-center mt-12 text-sm text-slate-400">
-                New to Memoria? <Link href="/register" className="text-memoria-primary font-bold">Create a Vault</Link>
+                New to memoryes? <Link href="/register" className="text-memoryes-primary font-bold">Create a Vault</Link>
             </p>
         </div>
     );

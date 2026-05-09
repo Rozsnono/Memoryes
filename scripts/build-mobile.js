@@ -21,7 +21,7 @@ async function build() {
 
         // 3. Run build with EXPORT_MODE=true
         console.log('Starting Mobile Export...');
-        execSync('npx cross-env EXPORT_MODE=true next build', { stdio: 'inherit' });
+        execSync('npx cross-env EXPORT_MODE=true NEXT_PUBLIC_API_URL=https://memoryes.vercel.app next build', { stdio: 'inherit' });
 
         console.log('Export Complete! Folder "out" is ready.');
     } catch (err) {

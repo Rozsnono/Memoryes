@@ -12,7 +12,7 @@ export async function OPTIONS(request: Request) {
 }
 
 export async function POST(req: Request) {
-    
+
     try {
         await connectDB();
         const { inviteCode, userId } = await req.json();

@@ -10,7 +10,7 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                memoria: {
+                memoryes: {
                     background: "#FDFCFB",
                     primary: "#9B86BD",
                     soft: "#F3E5F5",

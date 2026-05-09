@@ -8,6 +8,7 @@ import { Navbar } from "@/components/ui/Navbar";
 import { UploadMemory } from "@/components/UploadMemory";
 import { MemoryDetailsView } from "@/components/MemoryDetailsView";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
+import Link from "next/link";
 
 export default function Dashboard() {
   const [memories, setMemories] = useState<any[]>([]);
@@ -30,10 +31,12 @@ export default function Dashboard() {
       setUser(userData);
       // 2. Fetch memories for the ACTIVE space only
       const { data: memData } = await apiClient.get(`/api/memories?spaceId=${userData.activeSpace}`);
+      alert(`Loaded ${memData.length} memories from your vault.`);
       setMemories(memData);
       setLoading(false);
     } catch (err) {
       console.error(err);
+      alert(JSON.stringify(err) || "Failed to load memories");
     }
   };
 
@@ -58,33 +61,32 @@ export default function Dashboard() {
   }, [memories, searchQuery, showPinnedOnly]);
 
   return (
-    <div className="min-h-screen bg-memoria-background pb-32">
+    <div className="min-h-screen bg-memoryes-background pb-32">
       {/* HEADER SECTION */}
-      <header className="p-6 pt-16 space-y-6 sticky top-0 bg-memoria-background/90 backdrop-blur-md z-40">
+      <header className="p-6 pt-16 space-y-6 sticky top-0 bg-memoryes-background/90 backdrop-blur-md z-40">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-serif text-memoria-clay italic leading-none">Vault</h1>
+            <h1 className="text-4xl font-serif text-memoryes-clay italic leading-none">Vault</h1>
             <p className="text-[10px] font-black text-slate-300 uppercase tracking-[3px] mt-2">
               {filteredMemories.length} Memories Shown
             </p>
           </div>
-          <button
-            onClick={() => setIsUploadOpen(true)}
-            className="w-14 h-14 bg-memoria-clay rounded-[1.5rem] flex items-center justify-center text-white shadow-xl active:scale-90 transition-transform"
+          <Link href="/upload"
+            className="w-14 h-14 bg-memoryes-clay rounded-[1.5rem] flex items-center justify-center text-white shadow-xl active:scale-90 transition-transform"
           >
             <Plus size={28} />
-          </button>
+          </Link>
         </div>
 
         {/* Search Bar */}
         <div className="flex gap-3">
-          <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-slate-100 focus-within:border-memoria-primary transition-all">
+          <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-slate-100 focus-within:border-memoryes-primary transition-all">
             <Search className="text-slate-300 mr-2" size={18} />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by title or place..."
-              className="bg-transparent outline-none text-sm w-full text-memoria-clay placeholder:text-slate-300"
+              className="bg-transparent outline-none text-sm w-full text-memoryes-clay placeholder:text-slate-300"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="text-slate-300">
@@ -92,7 +94,7 @@ export default function Dashboard() {
               </button>
             )}
           </div>
-          <button className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-memoria-clay active:bg-slate-50">
+          <button className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-memoryes-clay active:bg-slate-50">
             <SlidersHorizontal size={20} />
           </button>
         </div>
@@ -102,7 +104,7 @@ export default function Dashboard() {
           <button
             onClick={() => setShowPinnedOnly(false)}
             className={`px-6 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${!showPinnedOnly
-              ? "bg-memoria-clay text-white border-memoria-clay shadow-md"
+              ? "bg-memoryes-clay text-white border-memoryes-clay shadow-md"
               : "bg-white text-slate-400 border-slate-100"
               }`}
           >
@@ -111,7 +113,7 @@ export default function Dashboard() {
           <button
             onClick={() => setShowPinnedOnly(true)}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${showPinnedOnly
-              ? "bg-memoria-primary text-white border-memoria-primary shadow-md"
+              ? "bg-memoryes-primary text-white border-memoryes-primary shadow-md"
               : "bg-white text-slate-400 border-slate-100"
               }`}
           >
@@ -125,7 +127,7 @@ export default function Dashboard() {
       <main className="px-6">
         {loading ? (
           <div className="flex justify-center py-20 opacity-20">
-            <div className="w-10 h-10 border-4 border-memoria-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-10 h-10 border-4 border-memoryes-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <motion.div layout className="columns-2 gap-4 space-y-4">
@@ -148,7 +150,7 @@ export default function Dashboard() {
 
                   {/* Pinned Icon Overlay */}
                   {memory.isPinned && (
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md p-1.5 rounded-full text-memoria-primary shadow-sm z-10">
+                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md p-1.5 rounded-full text-memoryes-primary shadow-sm z-10">
                       <Pin size={10} fill="currentColor" />
                     </div>
                   )}

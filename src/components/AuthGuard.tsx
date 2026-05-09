@@ -17,7 +17,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             const publicRoutes = ["/login", "/register", "/"];
             const isPublicRoute = publicRoutes.includes(normalizedPath);
 
-            const token = localStorage.getItem("memoria_token");
+            const token = localStorage.getItem("memoryes_token");
 
             // 2. Scenario: No Token
             if (!token) {
@@ -42,8 +42,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             } catch (err: any) {
                 // If token is invalid (401), clear it and redirect to login if on private route
                 console.error("Auth Verification Failed", err);
-                localStorage.removeItem("memoria_token");
-                localStorage.removeItem("memoria_user");
+                localStorage.removeItem("memoryes_token");
+                localStorage.removeItem("memoryes_user");
 
                 if (!isPublicRoute) {
                     router.push("/login");
@@ -62,7 +62,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     if (checking && !isPublicRoute) {
         return (
-            <div className="h-screen flex flex-col items-center justify-center bg-memoria-background text-memoria-primary">
+            <div className="h-screen flex flex-col items-center justify-center bg-memoryes-background text-memoryes-primary">
                 <Loader2 className="animate-spin mb-4" size={40} />
                 <p className="text-[10px] font-black uppercase tracking-[4px]">Unlocking Vault...</p>
             </div>

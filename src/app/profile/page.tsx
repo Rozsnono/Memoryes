@@ -98,7 +98,7 @@ export default function ProfilePage() {
             formData.append('api_key', signData.apiKey);
             formData.append('timestamp', signData.timestamp);
             formData.append('signature', signData.signature);
-            formData.append('folder', 'memoria_avatars');
+            formData.append('folder', 'memoryes_avatars');
 
             const cloudRes = await fetch(
                 `https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`,
@@ -144,19 +144,19 @@ export default function ProfilePage() {
     };
 
     const handleSignOut = () => {
-        localStorage.removeItem("memoria_token");
-        localStorage.removeItem("memoria_user");
+        localStorage.removeItem("memoryes_token");
+        localStorage.removeItem("memoryes_user");
         router.push("/login");
     };
 
     if (loading) return (
-        <div className="h-screen flex items-center justify-center bg-memoria-background">
-            <Loader2 className="animate-spin text-memoria-primary" size={32} />
+        <div className="h-screen flex items-center justify-center bg-memoryes-background">
+            <Loader2 className="animate-spin text-memoryes-primary" size={32} />
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-memoria-background pb-32">
+        <div className="min-h-screen bg-memoryes-background pb-32">
             {/* --- AVATAR & IDENTITY --- */}
             <header className="p-8 pt-20 flex flex-col items-center text-center">
                 <div className="relative mb-6">
@@ -180,13 +180,13 @@ export default function ProfilePage() {
 
                     <button
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute -bottom-1 -right-1 bg-white p-2.5 rounded-full shadow-lg text-memoria-clay active:scale-90 transition-transform"
+                        className="absolute -bottom-1 -right-1 bg-white p-2.5 rounded-full shadow-lg text-memoryes-clay active:scale-90 transition-transform"
                     >
                         <Camera size={18} />
                     </button>
                 </div>
 
-                <h2 className="text-3xl font-serif italic text-memoria-clay">{user.name}</h2>
+                <h2 className="text-3xl font-serif italic text-memoryes-clay">{user.name}</h2>
 
                 {/* --- SPACE SWITCHER BUTTON --- */}
                 <div className="mt-3 relative">
@@ -222,7 +222,7 @@ export default function ProfilePage() {
                                                     <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: space.themeColor }}>
                                                         <LayoutGrid size={14} />
                                                     </div>
-                                                    <span className={`text-[11px] font-bold ${space._id === user.activeSpace ? 'text-memoria-clay' : 'text-slate-400'}`}>
+                                                    <span className={`text-[11px] font-bold ${space._id === user.activeSpace ? 'text-memoryes-clay' : 'text-slate-400'}`}>
                                                         {space.name}
                                                     </span>
                                                 </div>
@@ -250,7 +250,7 @@ export default function ProfilePage() {
                             <Share2 size={16} />
                         </div>
                         <div className="flex items-center justify-between bg-slate-50 rounded-[1.5rem] p-4 border border-slate-100">
-                            <span className="text-2xl font-mono font-bold tracking-[0.3em] text-memoria-clay ml-2">
+                            <span className="text-2xl font-mono font-bold tracking-[0.3em] text-memoryes-clay ml-2">
                                 {activeSpace?.inviteCode || "------"}
                             </span>
                             <button
@@ -285,7 +285,7 @@ export default function ProfilePage() {
                         ))}
                         {isUpdating && (
                             <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center rounded-[2.5rem] z-10">
-                                <Loader2 className="animate-spin text-memoria-clay" size={20} />
+                                <Loader2 className="animate-spin text-memoryes-clay" size={20} />
                             </div>
                         )}
                     </div>
@@ -343,7 +343,7 @@ function ProfileItem({ icon: Icon, title, sub, toggle, toggleActive, onClick }: 
                     <Icon size={20} />
                 </div>
                 <div>
-                    <h4 className="text-sm font-bold text-memoria-clay">{title}</h4>
+                    <h4 className="text-sm font-bold text-memoryes-clay">{title}</h4>
                     <p className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">{sub}</p>
                 </div>
             </div>
@@ -375,12 +375,12 @@ function EditProfileModal({ user, onClose, onUpdate }: any) {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150]" />
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[3rem] p-8 pb-12 z-[160] max-w-md mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h3 className="text-xl font-serif italic text-memoria-clay">Edit Profile</h3>
+                    <h3 className="text-xl font-serif italic text-memoryes-clay">Edit Profile</h3>
                     <button onClick={onClose} className="p-2 bg-slate-100 rounded-full"><X size={20} /></button>
                 </div>
                 <div className="space-y-6">
-                    <input className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-memoria-clay outline-none" value={name} onChange={(e) => setName(e.target.value)} />
-                    <button onClick={saveChanges} disabled={isSaving || name === user.name} className="w-full bg-memoria-clay text-white py-4 rounded-[1.5rem] font-bold shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
+                    <input className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-memoryes-clay outline-none" value={name} onChange={(e) => setName(e.target.value)} />
+                    <button onClick={saveChanges} disabled={isSaving || name === user.name} className="w-full bg-memoryes-clay text-white py-4 rounded-[1.5rem] font-bold shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
                         {isSaving ? <Loader2 className="animate-spin" /> : "Save Changes"}
                     </button>
                 </div>

@@ -11,8 +11,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = ({ className, variant = 'primary', disabled, ...props }: ButtonProps) => {
     const variants = {
-        primary: "bg-memoria-clay text-white shadow-lg",
-        secondary: "bg-memoria-soft text-memoria-clay",
+        primary: "bg-memoryes-clay text-white shadow-lg",
+        secondary: "bg-memoryes-soft text-memoryes-clay",
         ghost: "bg-transparent text-slate-500"
     };
 

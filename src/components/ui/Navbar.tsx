@@ -29,7 +29,7 @@ export const Navbar = () => {
                     if (item.isCenter) {
                         return (
                             <Link key="add" href={item.href} className="relative -mt-12">
-                                <div className="w-16 h-16 bg-memoria-clay rounded-full flex items-center justify-center shadow-xl shadow-memoria-clay/40 active:scale-90 transition-transform">
+                                <div className="w-16 h-16 bg-memoryes-clay rounded-full flex items-center justify-center shadow-xl shadow-memoryes-clay/40 active:scale-90 transition-transform">
                                     <Plus className="text-white" size={32} />
                                 </div>
                             </Link>
@@ -40,7 +40,7 @@ export const Navbar = () => {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={`flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-memoria-primary' : 'text-slate-400'}`}
+                            className={`flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-memoryes-primary' : 'text-slate-400'}`}
                         >
                             <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
                             <span className="text-[10px] font-bold uppercase tracking-tighter">{item.label}</span>

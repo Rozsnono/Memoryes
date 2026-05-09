@@ -83,11 +83,11 @@ export default function ChatPage() {
                 <Link href="/dashboard" className="p-2 -ml-2 text-slate-400">
                     <ChevronLeft size={24} />
                 </Link>
-                <div className="w-10 h-10 rounded-2xl bg-memoria-soft flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
-                    <div className="w-full h-full bg-memoria-primary flex items-center justify-center text-white font-bold text-xs">V</div>
+                <div className="w-10 h-10 rounded-2xl bg-memoryes-soft flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
+                    <div className="w-full h-full bg-memoryes-primary flex items-center justify-center text-white font-bold text-xs">V</div>
                 </div>
                 <div className="flex-1">
-                    <h2 className="text-sm font-bold text-memoria-clay leading-none">Family Vault</h2>
+                    <h2 className="text-sm font-bold text-memoryes-clay leading-none">Family Vault</h2>
                     <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1 italic">Real-time Active</p>
                 </div>
                 <button className="p-2 text-slate-400"><MoreHorizontal size={20} /></button>
@@ -107,8 +107,8 @@ export default function ChatPage() {
                                 <span className="text-[9px] font-bold text-slate-400 mb-1 ml-2 uppercase tracking-tighter">{msg.senderName}</span>
                             )}
                             <div className={`max-w-[80%] p-4 rounded-[1.8rem] text-sm shadow-sm ${msg.senderId === currentUser.id
-                                ? "bg-memoria-clay text-white rounded-tr-none"
-                                : "bg-white text-memoria-clay rounded-tl-none border border-slate-100"
+                                ? "bg-memoryes-clay text-white rounded-tr-none"
+                                : "bg-white text-memoryes-clay rounded-tl-none border border-slate-100"
                                 }`}>
                                 {msg.text}
                             </div>
@@ -120,7 +120,7 @@ export default function ChatPage() {
             {/* Input Bar */}
             <div className="bg-white border-t border-slate-100 px-4 pt-3 pb-10">
                 <form onSubmit={sendMessage} className="flex items-end gap-2 max-w-md mx-auto">
-                    <button type="button" className="p-2 mb-1 text-memoria-primary bg-memoria-soft rounded-full">
+                    <button type="button" className="p-2 mb-1 text-memoryes-primary bg-memoryes-soft rounded-full">
                         <Paperclip size={20} />
                     </button>
 
@@ -138,7 +138,7 @@ export default function ChatPage() {
                     <motion.button
                         whileTap={{ scale: 0.9 }}
                         type="submit"
-                        className={`p-3 mb-0.5 rounded-full shadow-lg transition-colors ${inputText ? "bg-memoria-clay text-white" : "bg-slate-100 text-slate-300"
+                        className={`p-3 mb-0.5 rounded-full shadow-lg transition-colors ${inputText ? "bg-memoryes-clay text-white" : "bg-slate-100 text-slate-300"
                             }`}
                     >
                         <Send size={20} fill={inputText ? "currentColor" : "none"} />

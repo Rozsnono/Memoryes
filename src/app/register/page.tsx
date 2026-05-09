@@ -15,8 +15,8 @@ export default function RegisterPage() {
         setLoading(true);
         try {
             const { data } = await apiClient.post("/api/auth/register/", formData);
-            localStorage.setItem("memoria_token", data.token);
-            localStorage.setItem("memoria_user", JSON.stringify(data.user));
+            localStorage.setItem("memoryes_token", data.token);
+            localStorage.setItem("memoryes_user", JSON.stringify(data.user));
 
             // Navigate to the Setup Vault screen instead of Dashboard
             router.push("/setup-space");
@@ -28,12 +28,12 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-memoria-background p-8 flex flex-col justify-center">
+        <div className="min-h-screen bg-memoryes-background p-8 flex flex-col justify-center">
             <div className="mb-12 text-center">
-                <div className="w-16 h-16 bg-memoria-soft rounded-[2rem] flex items-center justify-center mx-auto mb-4 text-memoria-primary shadow-sm">
+                <div className="w-16 h-16 bg-memoryes-soft rounded-[2rem] flex items-center justify-center mx-auto mb-4 text-memoryes-primary shadow-sm">
                     <Sparkles size={32} />
                 </div>
-                <h1 className="text-3xl font-serif italic text-memoria-clay">Create Account</h1>
+                <h1 className="text-3xl font-serif italic text-memoryes-clay">Create Account</h1>
                 <p className="text-slate-400 text-sm mt-2">The first step to your digital legacy.</p>
             </div>
 
@@ -49,7 +49,7 @@ export default function RegisterPage() {
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Email</label>
                     <div className="flex items-center bg-white border border-slate-100 rounded-[1.5rem] px-4 py-3 shadow-sm">
                         <Mail size={18} className="text-slate-300 mr-3" />
-                        <input required type="email" placeholder="alex@memoria.com" className="bg-transparent outline-none text-sm w-full" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                        <input required type="email" placeholder="alex@memoryes.com" className="bg-transparent outline-none text-sm w-full" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
                     </div>
                 </div>
                 <div className="space-y-1">
@@ -60,7 +60,7 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                <button type="submit" disabled={loading} className="w-full bg-memoria-clay text-white py-4 rounded-[1.5rem] font-bold mt-4 shadow-lg flex items-center justify-center gap-2">
+                <button type="submit" disabled={loading} className="w-full bg-memoryes-clay text-white py-4 rounded-[1.5rem] font-bold mt-4 shadow-lg flex items-center justify-center gap-2">
                     {loading ? <Loader2 className="animate-spin" /> : "Sign Up"} <ArrowRight size={18} />
                 </button>
             </form>

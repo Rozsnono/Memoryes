@@ -55,7 +55,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
             formData.append('api_key', signData.apiKey);
             formData.append('timestamp', signData.timestamp);
             formData.append('signature', signData.signature);
-            formData.append('folder', 'memoria_vault');
+            formData.append('folder', 'memoryes_vault');
 
             const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`, {
                 method: 'POST', body: formData
@@ -130,8 +130,8 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                         {/* Media Stats & Location Badge */}
                         <div className="absolute bottom-16 left-8 z-20 flex flex-col gap-2">
                             <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm flex items-center gap-2 border border-white w-fit">
-                                <MapPin size={14} className="text-memoria-primary" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-memoria-clay">
+                                <MapPin size={14} className="text-memoryes-primary" />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-memoryes-clay">
                                     {memory.location?.name || "Discovery Point"}
                                 </span>
                             </div>
@@ -149,7 +149,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                                 <Calendar size={14} />
                                 <span>{new Date(memory.capturedAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
                             </div>
-                            <h2 className="text-4xl font-serif italic text-memoria-clay leading-tight">
+                            <h2 className="text-4xl font-serif italic text-memoryes-clay leading-tight">
                                 {memory.title}
                             </h2>
                         </header>
@@ -168,7 +168,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                                     key={i}
                                     className="flex gap-4"
                                 >
-                                    <div className="w-10 h-10 rounded-2xl bg-memoria-soft flex-shrink-0 flex items-center justify-center font-black text-memoria-primary text-xs">
+                                    <div className="w-10 h-10 rounded-2xl bg-memoryes-soft flex-shrink-0 flex items-center justify-center font-black text-memoryes-primary text-xs">
                                         {p.userName?.charAt(0)}
                                     </div>
                                     <div className="flex-1">

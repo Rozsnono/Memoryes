@@ -67,7 +67,7 @@ export default function MapPage() {
     }, [router]);
 
     return (
-        <div className="h-screen bg-memoria-background relative overflow-hidden">
+        <div className="h-screen bg-memoryes-background relative overflow-hidden">
             {/* 1. Header Overlay */}
             <div className="absolute top-12 left-6 right-6 z-20">
                 <motion.div 
@@ -76,12 +76,12 @@ export default function MapPage() {
                     className="bg-white/80 backdrop-blur-xl p-5 rounded-[2rem] shadow-xl border border-white/50 flex justify-between items-center"
                 >
                     <div>
-                        <h2 className="text-xl font-serif italic text-memoria-clay">Our Journey</h2>
+                        <h2 className="text-xl font-serif italic text-memoryes-clay">Our Journey</h2>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[2px]">
                             {loading ? "Locating..." : `${memories.length} Stops Tracked`}
                         </p>
                     </div>
-                    <div className="w-12 h-12 bg-memoria-soft rounded-2xl flex items-center justify-center text-memoria-primary shadow-inner">
+                    <div className="w-12 h-12 bg-memoryes-soft rounded-2xl flex items-center justify-center text-memoryes-primary shadow-inner">
                         <NavIcon size={24} />
                     </div>
                 </motion.div>
@@ -109,21 +109,21 @@ export default function MapPage() {
                             />
                         </div>
                         <div className="flex-1 flex flex-col justify-center overflow-hidden">
-                            <div className="flex items-center gap-1 text-memoria-primary mb-1">
+                            <div className="flex items-center gap-1 text-memoryes-primary mb-1">
                                 <Calendar size={12} />
                                 <span className="text-[10px] font-bold uppercase tracking-wider">
                                     {new Date(selectedMemory.capturedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                 </span>
                             </div>
-                            <h3 className="text-md font-bold text-memoria-clay leading-tight truncate">
+                            <h3 className="text-md font-bold text-memoryes-clay leading-tight truncate">
                                 {selectedMemory.title}
                             </h3>
                             <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                                <MapPin size={10} className="text-memoria-primary" /> 
+                                <MapPin size={10} className="text-memoryes-primary" /> 
                                 <span className="truncate">{selectedMemory.location?.name || "Discovery Point"}</span>
                             </p>
                         </div>
-                        <button className="self-center p-2 text-slate-200 hover:text-memoria-primary transition-colors">
+                        <button className="self-center p-2 text-slate-200 hover:text-memoryes-primary transition-colors">
                             <ChevronRight size={28} />
                         </button>
                     </motion.div>
@@ -135,7 +135,7 @@ export default function MapPage() {
                 <div className="absolute inset-0 z-10 bg-slate-50/50 backdrop-blur-[2px] flex items-center justify-center p-12 text-center">
                     <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
                         <MapPin size={48} className="mx-auto text-slate-200 mb-4" />
-                        <h3 className="font-serif italic text-lg text-memoria-clay">No pins on your map yet</h3>
+                        <h3 className="font-serif italic text-lg text-memoryes-clay">No pins on your map yet</h3>
                         <p className="text-xs text-slate-400 mt-2">Start capturing memories with location enabled to see your journey here.</p>
                     </div>
                 </div>

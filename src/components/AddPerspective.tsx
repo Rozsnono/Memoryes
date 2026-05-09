@@ -44,7 +44,7 @@ export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpd
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Your perspective..."
                         rows={1}
-                        className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 max-h-32 resize-none outline-none text-memoria-clay"
+                        className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-2 max-h-32 resize-none outline-none text-memoryes-clay"
                     />
 
                     <button className="p-2 text-slate-300">
@@ -56,7 +56,7 @@ export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpd
                     whileTap={{ scale: 0.9 }}
                     onClick={handleSubmit}
                     disabled={!text || isSubmitting}
-                    className="w-12 h-12 bg-memoria-clay rounded-full flex items-center justify-center text-white shadow-lg disabled:opacity-30"
+                    className="w-12 h-12 bg-memoryes-clay rounded-full flex items-center justify-center text-white shadow-lg disabled:opacity-30"
                 >
                     {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
                 </motion.button>

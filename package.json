@@ -10,6 +10,10 @@
     "build:mobile": "node scripts/build-mobile.js && npx cap copy"
   },
   "dependencies": {
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/camera": "^8.2.0",
+    "@capacitor/geolocation": "^8.2.0",
+    "@capacitor/status-bar": "^8.0.2",
     "axios": "^1.16.0",
     "bcryptjs": "^3.0.3",
     "capacitor-native-biometric": "^4.2.2",

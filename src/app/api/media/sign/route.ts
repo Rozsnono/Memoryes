@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         }
 
         const signature = cloudinary.utils.api_sign_request(
-            { timestamp, folder: 'memoria_vault' },
+            { timestamp, folder: 'memoryes_vault' },
             process.env.CLOUDINARY_API_SECRET
         );
 

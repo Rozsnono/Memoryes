@@ -39,7 +39,7 @@ export default function ModeSelection() {
     return (
         <div className="min-h-screen p-8 flex flex-col">
             <header className="mt-12 mb-10">
-                <h1 className="text-3xl font-serif text-memoria-clay">Choose your space</h1>
+                <h1 className="text-3xl font-serif text-memoryes-clay">Choose your space</h1>
                 <p className="text-slate-500 mt-2">How would you like to start your journey?</p>
             </header>
 
@@ -54,7 +54,7 @@ export default function ModeSelection() {
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setMode(item.id as any)}
                             className={`relative p-6 rounded-[2.5rem] border-2 transition-all cursor-pointer flex items-center gap-5 ${isSelected
-                                    ? 'border-memoria-primary bg-white shadow-md'
+                                    ? 'border-memoryes-primary bg-white shadow-md'
                                     : 'border-transparent bg-slate-50'
                                 }`}
                         >
@@ -63,13 +63,13 @@ export default function ModeSelection() {
                             </div>
 
                             <div className="flex-1">
-                                <h3 className="font-bold text-memoria-clay">{item.title}</h3>
+                                <h3 className="font-bold text-memoryes-clay">{item.title}</h3>
                                 <p className="text-xs text-slate-400 leading-tight">{item.desc}</p>
                             </div>
 
                             {isSelected && (
                                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                    <CheckCircle2 className="text-memoria-primary" size={24} />
+                                    <CheckCircle2 className="text-memoryes-primary" size={24} />
                                 </motion.div>
                             )}
                         </motion.div>

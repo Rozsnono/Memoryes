@@ -51,7 +51,7 @@ export default function MapProvider({ memories }: { memories: any[] }) {
                                     src={memory.media[0]?.url}
                                     className="w-24 h-16 object-cover rounded-lg mb-2"
                                 />
-                                <p className="text-[10px] font-bold text-memoria-clay uppercase tracking-widest">{memory.title}</p>
+                                <p className="text-[10px] font-bold text-memoryes-clay uppercase tracking-widest">{memory.title}</p>
                             </div>
                         </Popup>
                     </Marker>

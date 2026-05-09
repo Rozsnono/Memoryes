@@ -23,13 +23,13 @@ export default function BiometricSetup() {
                 <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="w-32 h-32 bg-memoria-soft rounded-[3rem] flex items-center justify-center mx-auto shadow-inner"
+                    className="w-32 h-32 bg-memoryes-soft rounded-[3rem] flex items-center justify-center mx-auto shadow-inner"
                 >
-                    <Fingerprint size={64} className="text-memoria-primary" />
+                    <Fingerprint size={64} className="text-memoryes-primary" />
                 </motion.div>
 
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-serif text-memoria-clay">Keep it private</h1>
+                    <h1 className="text-3xl font-serif text-memoryes-clay">Keep it private</h1>
                     <p className="text-slate-500 text-sm max-w-[240px] mx-auto">
                         Enable biometrics to ensure your memories are only accessible by you.
                     </p>
@@ -41,7 +41,7 @@ export default function BiometricSetup() {
                         <span className="text-xs font-medium text-slate-600">Your data is encrypted and never leaves this device.</span>
                     </div>
                     <div className="flex items-center gap-3 text-left bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                        <Lock className="text-memoria-primary" size={20} />
+                        <Lock className="text-memoryes-primary" size={20} />
                         <span className="text-xs font-medium text-slate-600">Locked memories require FaceID or Fingerprint.</span>
                     </div>
                 </div>
@@ -53,7 +53,7 @@ export default function BiometricSetup() {
                 </Button>
                 <button
                     onClick={() => router.push("/dashboard")}
-                    className="text-slate-400 text-sm font-medium hover:text-memoria-clay transition-colors"
+                    className="text-slate-400 text-sm font-medium hover:text-memoryes-clay transition-colors"
                 >
                     Maybe later
                 </button>

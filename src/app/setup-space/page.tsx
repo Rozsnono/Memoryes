@@ -34,7 +34,7 @@ export default function SetupVaultPage() {
         if (!inputValue) return;
         setLoading(true);
         try {
-            const storedUser = localStorage.getItem("memoria_user");
+            const storedUser = localStorage.getItem("memoryes_user");
             const user = storedUser ? JSON.parse(storedUser) : null;
             await apiClient.post("/api/spaces/join/", { inviteCode: inputValue, userId: user?.id || user?._id });
             router.push("/dashboard");
@@ -43,14 +43,14 @@ export default function SetupVaultPage() {
     };
 
     return (
-        <div className="min-h-screen bg-memoria-background p-8 flex flex-col justify-center">
+        <div className="min-h-screen bg-memoryes-background p-8 flex flex-col justify-center">
             <AnimatePresence mode="wait">
 
                 {/* STEP 1: INITIAL CHOICE */}
                 {step === 'choice' && (
                     <motion.div key="choice" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
                         <div className="text-center">
-                            <h1 className="text-4xl font-serif italic text-memoria-clay text-center">Welcome home.</h1>
+                            <h1 className="text-4xl font-serif italic text-memoryes-clay text-center">Welcome home.</h1>
                             <p className="text-slate-400 mt-2">Every story needs a place to live.</p>
                         </div>
                         <div className="grid gap-4">
@@ -58,15 +58,15 @@ export default function SetupVaultPage() {
                                 icon={<Plus size={28} />}
                                 title="Start a new Vault"
                                 desc="Create a fresh space."
-                                color="bg-memoria-primary"
+                                color="bg-memoryes-primary"
                                 onClick={() => setStep('type-selection')}
                             />
                             <ChoiceCard
                                 icon={<Users size={28} />}
                                 title="Join a Vault"
                                 desc="Enter a 6-digit code."
-                                color="bg-memoria-soft"
-                                textColor="text-memoria-clay"
+                                color="bg-memoryes-soft"
+                                textColor="text-memoryes-clay"
                                 onClick={() => setStep('join')}
                             />
                         </div>
@@ -79,7 +79,7 @@ export default function SetupVaultPage() {
                         <button onClick={() => setStep('choice')} className="flex items-center gap-2 text-slate-300 font-bold text-[10px] uppercase tracking-widest mb-4">
                             <ChevronLeft size={16} /> Back
                         </button>
-                        <h2 className="text-3xl font-serif italic text-memoria-clay">What kind of vault?</h2>
+                        <h2 className="text-3xl font-serif italic text-memoryes-clay">What kind of vault?</h2>
                         <div className="grid gap-3">
                             <TypeOption
                                 active={vaultType === 'personal'}
@@ -108,7 +108,7 @@ export default function SetupVaultPage() {
                         </button>
 
                         <div>
-                            <h2 className="text-3xl font-serif italic text-memoria-clay">
+                            <h2 className="text-3xl font-serif italic text-memoryes-clay">
                                 {step === 'naming' ? "Name your space" : "Enter Invite Code"}
                             </h2>
                             <p className="text-slate-400 mt-1">
@@ -118,7 +118,7 @@ export default function SetupVaultPage() {
 
                         <input
                             autoFocus
-                            className="w-full bg-white border-b-2 border-slate-100 py-6 text-2xl font-serif italic outline-none focus:border-memoria-primary transition-colors text-memoria-clay"
+                            className="w-full bg-white border-b-2 border-slate-100 py-6 text-2xl font-serif italic outline-none focus:border-memoryes-primary transition-colors text-memoryes-clay"
                             placeholder={step === 'naming' ? "e.g. Summer 2024" : "e.g. AB1234"}
                             value={inputValue}
                             onChange={(e) => setInputValue(step === 'join' ? e.target.value.toUpperCase() : e.target.value)}
@@ -127,7 +127,7 @@ export default function SetupVaultPage() {
                         <button
                             onClick={step === 'naming' ? handleCreate : handleJoin}
                             disabled={loading || !inputValue}
-                            className="w-full bg-memoria-clay text-white py-5 rounded-[2rem] font-bold shadow-xl flex items-center justify-center gap-3 disabled:opacity-30 transition-all"
+                            className="w-full bg-memoryes-clay text-white py-5 rounded-[2rem] font-bold shadow-xl flex items-center justify-center gap-3 disabled:opacity-30 transition-all"
                         >
                             {loading ? <Loader2 className="animate-spin" /> : <CheckCircle2 size={20} />}
                             {step === 'naming' ? "Initialize Vault" : "Join the Vault"}
@@ -153,10 +153,10 @@ function ChoiceCard({ icon, title, desc, color, textColor = "text-white", onClic
 
 function TypeOption({ active, onClick, icon, title, desc }: any) {
     return (
-        <button onClick={onClick} className={`flex items-center gap-5 p-5 rounded-[2rem] border-2 transition-all ${active ? 'bg-white border-memoria-primary shadow-md' : 'bg-white border-slate-50 opacity-60'}`}>
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${active ? 'bg-memoria-soft text-memoria-primary' : 'bg-slate-50 text-slate-400'}`}>{icon}</div>
+        <button onClick={onClick} className={`flex items-center gap-5 p-5 rounded-[2rem] border-2 transition-all ${active ? 'bg-white border-memoryes-primary shadow-md' : 'bg-white border-slate-50 opacity-60'}`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${active ? 'bg-memoryes-soft text-memoryes-primary' : 'bg-slate-50 text-slate-400'}`}>{icon}</div>
             <div className="text-left">
-                <p className="text-md font-bold text-memoria-clay">{title}</p>
+                <p className="text-md font-bold text-memoryes-clay">{title}</p>
                 <p className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">{desc}</p>
             </div>
         </button>
