@@ -9,6 +9,7 @@ import { UploadMemory } from "@/components/UploadMemory";
 import { MemoryDetailsView } from "@/components/MemoryDetailsView";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const [memories, setMemories] = useState<any[]>([]);
@@ -30,13 +31,12 @@ export default function Dashboard() {
       const { data: userData } = await apiClient.get('/api/auth/me/');
       setUser(userData);
       // 2. Fetch memories for the ACTIVE space only
-      const { data: memData } = await apiClient.get(`/api/memories?spaceId=${userData.activeSpace}`);
-      alert(`Loaded ${memData.length} memories from your vault.`);
+      const { data: memData } = await apiClient.get(`/api/memories/?spaceId=${userData.activeSpace}`);
       setMemories(memData);
       setLoading(false);
     } catch (err) {
       console.error(err);
-      alert(JSON.stringify(err) || "Failed to load memories");
+      toast.error(JSON.stringify(err) || "Failed to load memories");
     }
   };
 

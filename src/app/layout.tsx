@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app'; // Import the App plugin
 import { AuthGuard } from "@/components/AuthGuard";
 import "./globals.css";
+import { Toaster } from 'sonner';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -53,6 +54,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </AuthGuard>
         </div>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              color: '#4A4E69', // memoria-clay
+              fontFamily: 'inherit'
+            },
+          }}
+        />
       </body>
     </html>
   );

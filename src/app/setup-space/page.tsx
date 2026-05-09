@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Users, ArrowRight, CheckCircle2, Loader2, ChevronLeft, Heart, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 type SetupStep = 'choice' | 'type-selection' | 'naming' | 'join';
 
@@ -26,7 +27,7 @@ export default function SetupVaultPage() {
                 type: vaultType
             });
             router.push("/dashboard");
-        } catch (err) { alert("Failed to create vault"); }
+        } catch (err) { toast.error("Failed to create vault"); }
         finally { setLoading(false); }
     };
 
@@ -38,7 +39,7 @@ export default function SetupVaultPage() {
             const user = storedUser ? JSON.parse(storedUser) : null;
             await apiClient.post("/api/spaces/join/", { inviteCode: inputValue, userId: user?.id || user?._id });
             router.push("/dashboard");
-        } catch (err) { alert("Invalid code. Please check with your family."); }
+        } catch (err) { toast.error("Invalid code. Please check with your family."); }
         finally { setLoading(false); }
     };
 

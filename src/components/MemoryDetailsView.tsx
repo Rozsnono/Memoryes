@@ -6,6 +6,7 @@ import { AddPerspective } from "./AddPerspective";
 import { MediaCarousel } from "./MediaCarousel";
 import { useState, useEffect } from "react";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 interface MemoryDetailsProps {
     memory: any;
@@ -14,21 +15,18 @@ interface MemoryDetailsProps {
 }
 
 export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: MemoryDetailsProps) => {
-    // Local state so we can update the UI immediately when new data arrives
     const [memory, setMemory] = useState(initialMemory);
+    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
     const [isUploadingMedia, setIsUploadingMedia] = useState(false);
 
-    // Keep local state in sync with the memory passed from the dashboard
     useEffect(() => {
         setMemory(initialMemory);
     }, [initialMemory]);
 
-    // Handler: Toggle Favorite Status
     const toggleFavorite = async () => {
         if (!memory) return;
-        const newState = !memory.isPinned;
+        const newState = !memory.isFavorite; // Fixed: Use isFavorite consistently
 
-        // Optimistic Update
         setMemory({ ...memory, isFavorite: newState });
 
         try {
@@ -36,45 +34,67 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                 memoryId: memory._id,
                 isFavorite: newState
             });
+            toast.success("Memory " + (newState ? "added to" : "removed from") + " favorites");
         } catch (err) {
-            setMemory({ ...memory, isFavorite: !newState }); // Revert on fail
+            setMemory({ ...memory, isFavorite: !newState });
         }
     };
 
-    // Handler: Add Media (Collaborative)
+    // --- MULTIPLE MEDIA UPLOAD LOGIC ---
     const handleAddMedia = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !memory) return;
+        const files = e.target.files;
+        if (!files || files.length === 0 || !memory) return;
 
+        const fileArray = Array.from(files);
+        setUploadProgress({ current: 0, total: fileArray.length });
         setIsUploadingMedia(true);
+
         try {
+            // 1. Get Secure Signature from your API
             const { data: signData } = await apiClient.post('/api/media/sign/');
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('api_key', signData.apiKey);
-            formData.append('timestamp', signData.timestamp);
-            formData.append('signature', signData.signature);
-            formData.append('folder', 'memoryes_vault');
+            // 2. Loop through every selected file
+            for (let i = 0; i < fileArray.length; i++) {
+                const file = fileArray[i];
+                const isVideo = file.type.startsWith('video');
+                const resourceType = isVideo ? 'video' : 'image';
 
-            const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`, {
-                method: 'POST', body: formData
-            });
-            const cloudData = await cloudRes.json();
+                setUploadProgress(prev => ({ ...prev, current: i + 1 }));
 
-            const { data: updatedMemory } = await apiClient.post('/api/memories/media/', {
-                memoryId: memory._id,
-                url: cloudData.secure_url,
-                publicId: cloudData.public_id,
-                mediaType: 'image'
-            });
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('api_key', signData.apiKey);
+                formData.append('timestamp', signData.timestamp);
+                formData.append('signature', signData.signature);
+                formData.append('folder', 'memoryes_vault');
 
-            setMemory(updatedMemory); // Refresh carousel with new photo
-            window.location.reload(); // Temporary: Force reload to sync with other users' views
+                // Cloudinary handles videos at a different endpoint suffix
+                const cloudRes = await fetch(
+                    `https://api.cloudinary.com/v1_1/${signData.cloudName}/${resourceType}/upload`,
+                    { method: 'POST', body: formData }
+                );
+                const cloudData = await cloudRes.json();
+
+                if (cloudData.secure_url) {
+                    // 3. Update MongoDB for each successful upload
+                    const { data: updatedMemory } = await apiClient.post('/api/memories/media/', {
+                        memoryId: memory._id,
+                        url: cloudData.secure_url,
+                        publicId: cloudData.public_id,
+                        mediaType: resourceType
+                    });
+
+                    // Update local state so the carousel grows in real-time
+                    setMemory(updatedMemory);
+                }
+            }
         } catch (err) {
-            alert("Failed to add media");
+            console.error("Upload error:", err);
+            toast.error("Some files failed to upload.");
         } finally {
             setIsUploadingMedia(false);
+            toast.success("Memory preserved in vault");
+            setUploadProgress({ current: 0, total: 0 });
         }
     };
 
@@ -94,10 +114,8 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                     <div className="relative h-[65vh] w-full bg-slate-900">
                         <MediaCarousel media={memory.media || []} />
 
-                        {/* Visual Overlays */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white pointer-events-none z-10" />
 
-                        {/* Top Navigation & Action Buttons */}
                         <div className="absolute top-14 left-6 right-6 flex justify-between items-center z-30">
                             <button
                                 onClick={onClose}
@@ -107,27 +125,41 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                             </button>
 
                             <div className="flex gap-2">
-                                {/* Add Photo Button */}
-                                <label className="p-3 bg-white/20 backdrop-blur-lg rounded-full text-white border border-white/30 cursor-pointer active:scale-90 transition-transform">
-                                    {isUploadingMedia ? <Loader2 size={24} className="animate-spin" /> : <Plus size={24} />}
-                                    <input type="file" className="hidden" onChange={handleAddMedia} disabled={isUploadingMedia} />
+                                {/* MULTI-SELECT Add Media Button */}
+                                <label className="relative p-3 bg-white/20 backdrop-blur-lg rounded-full text-white border border-white/30 cursor-pointer active:scale-90 transition-transform flex items-center justify-center">
+                                    {isUploadingMedia ? (
+                                        <div className="relative flex items-center justify-center">
+                                            <Loader2 size={24} className="animate-spin" />
+                                            <span className="absolute text-[8px] font-bold">
+                                                {uploadProgress.current}/{uploadProgress.total}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <Plus size={24} />
+                                    )}
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        multiple
+                                        accept="image/*,video/*"
+                                        onChange={handleAddMedia}
+                                        disabled={isUploadingMedia}
+                                    />
                                 </label>
 
-                                {/* Favorite Heart Button */}
                                 <motion.button
                                     whileTap={{ scale: 0.8 }}
                                     onClick={toggleFavorite}
-                                    className={`p-3 rounded-full shadow-lg transition-colors border ${memory.isPinned
-                                            ? "bg-rose-500 text-white border-rose-500"
-                                            : "bg-white/20 backdrop-blur-lg text-white border-white/30"
+                                    className={`p-3 rounded-full shadow-lg transition-colors border ${memory.isFavorite
+                                        ? "bg-rose-500 text-white border-rose-500"
+                                        : "bg-white/20 backdrop-blur-lg text-white border-white/30"
                                         }`}
                                 >
-                                    <Heart size={24} fill={memory.isPinned ? "currentColor" : "none"} />
+                                    <Heart size={24} fill={memory.isFavorite ? "currentColor" : "none"} />
                                 </motion.button>
                             </div>
                         </div>
 
-                        {/* Media Stats & Location Badge */}
                         <div className="absolute bottom-16 left-8 z-20 flex flex-col gap-2">
                             <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm flex items-center gap-2 border border-white w-fit">
                                 <MapPin size={14} className="text-memoryes-primary" />
@@ -137,7 +169,7 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                             </div>
                             <div className="bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-white flex items-center gap-2 w-fit">
                                 <ImageIcon size={12} />
-                                {memory.media?.length || 1} Media Items
+                                {memory.media?.length || 0} Items
                             </div>
                         </div>
                     </div>
@@ -154,7 +186,6 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                             </h2>
                         </header>
 
-                        {/* 3. MULTI-PERSPECTIVE SECTION */}
                         <section className="space-y-8">
                             <div className="flex items-center justify-between">
                                 <h4 className="text-[10px] font-black uppercase tracking-[4px] text-slate-300">Perspectives</h4>
@@ -190,7 +221,6 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                         </section>
                     </div>
 
-                    {/* 4. FIXED PERSPECTIVE INPUT */}
                     <AddPerspective
                         memoryId={memory._id}
                         onUpdate={(updated) => setMemory(updated)}

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Send, Mic, Smile, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpdate: (updated: any) => void }) => {
     const [text, setText] = useState("");
@@ -25,7 +26,7 @@ export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpd
             setText("");
             onUpdate(data); // Refresh the detail view with new data
         } catch (err) {
-            alert("Failed to save perspective");
+            toast.error("Failed to save perspective");
         } finally {
             setIsSubmitting(false);
         }

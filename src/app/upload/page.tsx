@@ -5,6 +5,7 @@ import { X, Image as ImageIcon, Loader2, CheckCircle2, MapPin, Camera, ChevronLe
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export default function UploadPage() {
     const router = useRouter();
@@ -70,7 +71,7 @@ export default function UploadPage() {
             setStep('success');
             setTimeout(() => router.push('/dashboard'), 1500);
         } catch (err) {
-            alert("Preservation failed. Please try again.");
+            toast.error("Preservation failed. Please try again.");
             setIsUploading(false);
         }
     };

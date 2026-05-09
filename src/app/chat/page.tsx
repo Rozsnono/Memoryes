@@ -6,6 +6,7 @@ import { ChevronLeft, Send, Mic, MoreHorizontal, Paperclip } from "lucide-react"
 import Link from "next/link";
 import Pusher from "pusher-js";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export default function ChatPage() {
     const [messages, setMessages] = useState<any[]>([]);
@@ -72,7 +73,7 @@ export default function ChatPage() {
             });
         } catch (err: any) {
             console.error("Frontend Error:", err.response?.data || err.message);
-            alert("Failed to send: " + (err.response?.data?.error || "Network Error"));
+            toast.error("Failed to send: " + (err.response?.data?.error || "Network Error"));
             setInputText(messageText); // Put text back if failed
         }
     };

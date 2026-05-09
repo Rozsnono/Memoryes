@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
 import { Capacitor } from '@capacitor/core';
 import { useNativePermissions } from "@/hooks/usePermissions";
+import { toast } from "sonner";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -38,7 +39,7 @@ export default function LoginPage() {
             localStorage.setItem("memoryes_user", JSON.stringify(data.user));
             router.push("/dashboard");
         } catch (err: any) {
-            alert(JSON.stringify(err.response?.status) || "Login failed");
+            toast.error(JSON.stringify(err.response?.status) || "Login failed");
         } finally {
             setLoading(false);
         }

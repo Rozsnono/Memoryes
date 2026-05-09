@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Check, LayoutGrid, X, Loader2 } from "lucide-react";
 import { useState } from "react";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export const SpaceSwitcher = ({ user, onSwitch }: any) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ export const SpaceSwitcher = ({ user, onSwitch }: any) => {
             onSwitch(data);
             setIsOpen(false);
         } catch (err) {
-            alert("Failed to switch space");
+            toast.error("Failed to switch space");
         }
     };
 
@@ -36,7 +37,7 @@ export const SpaceSwitcher = ({ user, onSwitch }: any) => {
             setIsCreating(false);
             setIsOpen(false);
         } catch (err) {
-            alert("Creation failed");
+            toast.error("Creation failed");
         } finally {
             setLoading(false);
         }

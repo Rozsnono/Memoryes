@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Camera, X, Loader2, CheckCircle2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiClient from '@/lib/apiClient';
+import { toast } from 'sonner';
 
 export const UploadMemory = ({ isOpen, onClose, onRefresh, user }: any) => {
   const [file, setFile] = useState<File | null>(null);
@@ -20,8 +21,8 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh, user }: any) => {
   };
 
   const handleUpload = async () => {
-    if (!file || !title) return alert("Please add a photo and a title");
-    if (!user?.activeSpace) return alert("No active space found");
+    if (!file || !title) return toast.error("Please add a photo and a title");
+    if (!user?.activeSpace) return toast.error("No active space found");
 
     setIsUploading(true);
     try {
@@ -63,7 +64,7 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh, user }: any) => {
       setTitle("");
     } catch (error) {
       console.error(error);
-      alert("Upload failed");
+      toast.error("Upload failed");
     } finally {
       setIsUploading(false);
     }
@@ -73,18 +74,18 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh, user }: any) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
           />
-          <motion.div 
+          <motion.div
             initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             className="fixed bottom-0 left-0 right-0 z-[210] bg-white rounded-t-[3rem] p-8 pb-12 max-w-md mx-auto shadow-2xl"
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-serif italic text-memoryes-clay">Capture Moment</h2>
-              <button onClick={onClose} className="p-2 bg-slate-100 rounded-full"><X size={20}/></button>
+              <button onClick={onClose} className="p-2 bg-slate-100 rounded-full"><X size={20} /></button>
             </div>
 
             {!preview ? (
@@ -99,15 +100,15 @@ export const UploadMemory = ({ isOpen, onClose, onRefresh, user }: any) => {
               <div className="space-y-4">
                 <div className="relative w-full h-64 rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white">
                   <img src={preview} className="w-full h-full object-cover" alt="preview" />
-                  <button onClick={() => setPreview(null)} className="absolute top-4 right-4 p-2 bg-white/80 rounded-full shadow-md"><X size={16}/></button>
+                  <button onClick={() => setPreview(null)} className="absolute top-4 right-4 p-2 bg-white/80 rounded-full shadow-md"><X size={16} /></button>
                 </div>
-                <input 
+                <input
                   placeholder="What is this memory called?"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full p-5 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-memoryes-primary transition-all text-sm font-bold"
                 />
-                <button 
+                <button
                   onClick={handleUpload}
                   disabled={isUploading || !title}
                   className="w-full py-5 bg-memoryes-clay text-white rounded-[1.5rem] font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"

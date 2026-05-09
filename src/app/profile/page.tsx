@@ -24,6 +24,7 @@ import apiClient from "@/lib/apiClient";
 import { Navbar } from "@/components/ui/Navbar";
 import { NativeBiometric } from 'capacitor-native-biometric';
 import Link from "next/link";
+import { toast } from "sonner";
 
 const THEMES = [
     { name: "Lavender", color: "#9B86BD" },
@@ -79,7 +80,7 @@ export default function ProfilePage() {
             if (newActive?.themeColor) setActiveTheme(newActive.themeColor);
             setIsSwitcherOpen(false);
         } catch (err) {
-            alert("Failed to switch space");
+            toast.error("Failed to switch space");
         } finally {
             setIsUpdating(false);
         }
@@ -112,7 +113,7 @@ export default function ProfilePage() {
 
             setUser(updatedUser);
         } catch (err) {
-            alert("Failed to upload avatar");
+            toast.error("Failed to upload avatar");
         } finally {
             setIsUploadingAvatar(false);
         }
@@ -130,7 +131,7 @@ export default function ProfilePage() {
     const handleBiometricToggle = async () => {
         try {
             const result = await NativeBiometric.isAvailable();
-            if (!result.isAvailable) return alert("Biometrics not available");
+            if (!result.isAvailable) return toast.error("Biometrics not available");
             const verified = await NativeBiometric.verifyIdentity({
                 reason: "Secure your memories",
                 title: "Security",
@@ -140,7 +141,7 @@ export default function ProfilePage() {
                 const { data } = await apiClient.patch('/api/profile/', { bioEnabled: !user.bioEnabled });
                 setUser(data);
             }
-        } catch (err) { console.log("Biometric failed"); }
+        } catch (err) { console.log("Biometric failed"); toast.error("Biometric authentication failed"); }
     };
 
     const handleSignOut = () => {
@@ -367,7 +368,7 @@ function EditProfileModal({ user, onClose, onUpdate }: any) {
             const { data } = await apiClient.patch('/api/profile/', { name });
             onUpdate(data);
             onClose();
-        } catch (err) { alert("Update failed"); }
+        } catch (err) { toast.error("Update failed"); }
         finally { setIsSaving(false); }
     };
     return (

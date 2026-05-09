@@ -4,6 +4,7 @@ import { useState } from "react";
 import { User, Mail, Lock, ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -21,7 +22,7 @@ export default function RegisterPage() {
             // Navigate to the Setup Vault screen instead of Dashboard
             router.push("/setup-space");
         } catch (err: any) {
-            alert(err.response?.data?.error || "Registration failed");
+            toast.error(err.response?.data?.error || "Registration failed");
         } finally {
             setLoading(false);
         }

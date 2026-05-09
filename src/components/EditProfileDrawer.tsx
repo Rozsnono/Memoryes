@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, User } from "lucide-react";
 import apiClient from "@/lib/apiClient";
+import { toast } from "sonner";
 
 export const EditProfileDrawer = ({ isOpen, onClose, initialName, onUpdate }: any) => {
     const [name, setName] = useState(initialName);
@@ -16,7 +17,7 @@ export const EditProfileDrawer = ({ isOpen, onClose, initialName, onUpdate }: an
             onUpdate(data);
             onClose();
         } catch (err) {
-            alert("Failed to update name");
+            toast.error("Failed to update name");
         } finally {
             setLoading(false);
         }
