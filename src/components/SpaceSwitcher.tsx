@@ -101,7 +101,7 @@ export const SpaceSwitcher = ({ user, onSwitch }: any) => {
                                         </div>
 
                                         <button
-                                            onClick={() => {setIsCreating(true)}}
+                                            onClick={() => { setIsCreating(true) }}
                                             className="w-full mt-2 flex items-center gap-3 p-3 rounded-2xl text-slate-400 hover:bg-slate-50 transition-colors border-t border-slate-50 pt-4"
                                         >
                                             <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center">

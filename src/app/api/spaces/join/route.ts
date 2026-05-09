@@ -30,7 +30,8 @@ export async function POST(req: Request) {
 
         // 3. Update User's spaceId
         const updatedUser = await User.findByIdAndUpdate(userId, {
-            spaceId: targetSpace._id,
+            spaces: [targetSpace._id], // For simplicity, we set this as the only space. In a real app, you'd likely want to allow multiple spaces.
+            activeSpace: targetSpace._id,
             mode: targetSpace.type // Sync mode with the space they joined
         }, { new: true });
 

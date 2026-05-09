@@ -21,7 +21,7 @@ export default function LoginPage() {
             localStorage.setItem("memoria_user", JSON.stringify(data.user));
             router.push("/dashboard");
         } catch (err: any) {
-            alert("Invalid email or password");
+            alert(JSON.stringify(err.response?.status) || "Login failed");
         } finally {
             setLoading(false);
         }

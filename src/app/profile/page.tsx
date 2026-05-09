@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
 import { Navbar } from "@/components/ui/Navbar";
 import { NativeBiometric } from 'capacitor-native-biometric';
+import Link from "next/link";
 
 const THEMES = [
     { name: "Lavender", color: "#9B86BD" },
@@ -228,10 +229,10 @@ export default function ProfilePage() {
                                                 {space._id === user.activeSpace && <Check size={14} className="text-emerald-500" />}
                                             </button>
                                         ))}
-                                        <button className="w-full mt-1 flex items-center gap-3 p-3 rounded-2xl text-slate-300 border-t border-slate-50 pt-3">
+                                        <Link href="/setup-space" className="w-full mt-1 flex items-center gap-3 p-3 rounded-2xl text-slate-300 border-t border-slate-50 pt-3">
                                             <Plus size={14} />
                                             <span className="text-[11px] font-bold">New Vault</span>
-                                        </button>
+                                        </Link>
                                     </div>
                                 </motion.div>
                             </>

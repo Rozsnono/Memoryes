@@ -14,7 +14,7 @@ export async function OPTIONS(request: Request) {
 export async function POST(req: Request) {
     try {
         await connectDB();
-        const { name, email, password, mode, inviteCode } = await req.json();
+        const { name, email, password } = await req.json();
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -22,30 +22,12 @@ export async function POST(req: Request) {
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
-        let spaceId = null;
-
-        if (inviteCode) {
-            // JOINING EXISTING SPACE
-            const space = await Space.findOne({ inviteCode: inviteCode.toUpperCase() });
-            if (!space) return corsResponse(NextResponse.json({ error: "Invalid invite code" }, { status: 400 }), req);
-            spaceId = space._id;
-        } else {
-            // CREATING NEW SPACE
-            const newSpace = await Space.create({
-                name: `${name}'s Vault`,
-                type: mode || 'personal',
-                createdBy: email // Temporary ref
-            });
-            spaceId = newSpace._id;
-        }
 
         const newUser = await User.create({
             name,
             email,
             password: hashedPassword,
-            mode: mode || 'personal',
-            spaces: [spaceId],
-            activeSpace: spaceId
+            spaces: [],
         });
 
         const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '30d' });
