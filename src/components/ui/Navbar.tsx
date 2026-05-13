@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, MessageCircle, Map as MapIcon, User, Plus } from "lucide-react";
+import { Home, MessageCircle, Map as MapIcon, User, Plus, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -8,12 +8,12 @@ export const Navbar = () => {
     const pathname = usePathname();
 
     // Hide navbar on chat and upload screens for better focus
-    const hiddenRoutes = ["/chat", "/upload", "/onboarding"];
+    const hiddenRoutes = ["/upload", "/onboarding"];
     if (hiddenRoutes.some(route => pathname.startsWith(route))) return null;
 
     const navItems = [
         { icon: Home, label: "Vault", href: "/dashboard" },
-        { icon: MessageCircle, label: "Chat", href: "/chat" },
+        { icon: LayoutGrid, label: "Gallery", href: "/gallery" },
         { icon: Plus, label: "Add", href: "/upload", isCenter: true },
         { icon: MapIcon, label: "Map", href: "/map" },
         { icon: User, label: "Profile", href: "/profile" },

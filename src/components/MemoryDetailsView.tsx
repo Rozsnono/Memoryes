@@ -1,12 +1,14 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, MapPin, Calendar, Plus, ImageIcon, Loader2 } from "lucide-react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { X, Heart, MapPin, Calendar, Plus, ImageIcon, Loader2, Quote, Download, MessageCircle } from "lucide-react";
 import { AddPerspective } from "./AddPerspective";
 import { MediaCarousel } from "./MediaCarousel";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "@/lib/apiClient";
 import { toast } from "sonner";
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 
 interface MemoryDetailsProps {
     memory: any;
@@ -14,53 +16,88 @@ interface MemoryDetailsProps {
     onClose: () => void;
 }
 
-export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: MemoryDetailsProps) => {
-    const [memory, setMemory] = useState(initialMemory);
-    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+/**
+ * SUB-COMPONENT: This handles the internal logic and scroll transforms.
+ * It is only rendered when the modal is actually open.
+ */
+const MemoryDetailsContent = ({ memory, setMemory, onClose }: { memory: any, setMemory: any, onClose: () => void }) => {
     const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
 
-    useEffect(() => {
-        setMemory(initialMemory);
-    }, [initialMemory]);
+    // Scroll handling - Now safe because this component only exists when the DOM is ready
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        container: containerRef,
+    });
 
-    const toggleFavorite = async () => {
-        if (!memory) return;
-        const newState = !memory.isFavorite; // Fixed: Use isFavorite consistently
+    const mediaY = useTransform(scrollYProgress, [0, 0.4], ["0%", "-10%"]);
+    const mediaScale = useTransform(scrollYProgress, [0, 0.4], [1, 1.05]);
+    const overlayOpacity = useTransform(scrollYProgress, [0, 0.3], [0, 0.6]);
 
-        setMemory({ ...memory, isFavorite: newState });
+    const handleDownload = async () => {
+        const url = memory.media[activeIndex]?.url;
+        if (!url) return;
+        setIsDownloading(true);
+        const toastId = toast.loading("Downloading...");
 
         try {
-            await apiClient.patch('/api/memories/favorite/', {
-                memoryId: memory._id,
-                isFavorite: newState
-            });
-            toast.success("Memory " + (newState ? "added to" : "removed from") + " favorites");
+            const response = await fetch(url);
+            const blob = await response.blob();
+            if (Capacitor.isNativePlatform()) {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = async () => {
+                    const base64Data = reader.result as string;
+                    await Filesystem.writeFile({
+                        path: `memoryes_${Date.now()}.jpg`,
+                        data: base64Data,
+                        directory: Directory.Documents,
+                    });
+                    toast.success("Saved to Documents", { id: toastId });
+                };
+            } else {
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = `memory_${memory._id}.jpg`;
+                link.click();
+                window.URL.revokeObjectURL(blobUrl);
+                toast.success("Downloaded", { id: toastId });
+            }
+        } catch (err) {
+            toast.error("Download failed", { id: toastId });
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const toggleFavorite = async () => {
+        const newState = !memory.isFavorite;
+        setMemory({ ...memory, isFavorite: newState });
+        try {
+            await apiClient.patch('/api/memories/favorite/', { memoryId: memory._id, isFavorite: newState });
+            toast.success(newState ? "Saved to favorites" : "Removed from favorites");
         } catch (err) {
             setMemory({ ...memory, isFavorite: !newState });
         }
     };
 
-    // --- MULTIPLE MEDIA UPLOAD LOGIC ---
     const handleAddMedia = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files || files.length === 0 || !memory) return;
-
+        if (!files || files.length === 0) return;
         const fileArray = Array.from(files);
         setUploadProgress({ current: 0, total: fileArray.length });
         setIsUploadingMedia(true);
+        const toastId = toast.loading(`Uploading ${fileArray.length} items...`);
 
         try {
-            // 1. Get Secure Signature from your API
             const { data: signData } = await apiClient.post('/api/media/sign/');
-
-            // 2. Loop through every selected file
             for (let i = 0; i < fileArray.length; i++) {
                 const file = fileArray[i];
-                const isVideo = file.type.startsWith('video');
-                const resourceType = isVideo ? 'video' : 'image';
-
+                const resourceType = file.type.startsWith('video') ? 'video' : 'image';
                 setUploadProgress(prev => ({ ...prev, current: i + 1 }));
-
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('api_key', signData.apiKey);
@@ -68,164 +105,130 @@ export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: Me
                 formData.append('signature', signData.signature);
                 formData.append('folder', 'memoryes_vault');
 
-                // Cloudinary handles videos at a different endpoint suffix
-                const cloudRes = await fetch(
-                    `https://api.cloudinary.com/v1_1/${signData.cloudName}/${resourceType}/upload`,
-                    { method: 'POST', body: formData }
-                );
+                const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/${resourceType}/upload`, { method: 'POST', body: formData });
                 const cloudData = await cloudRes.json();
-
-                if (cloudData.secure_url) {
-                    // 3. Update MongoDB for each successful upload
-                    const { data: updatedMemory } = await apiClient.post('/api/memories/media/', {
-                        memoryId: memory._id,
-                        url: cloudData.secure_url,
-                        publicId: cloudData.public_id,
-                        mediaType: resourceType
-                    });
-
-                    // Update local state so the carousel grows in real-time
-                    setMemory(updatedMemory);
-                }
+                const { data: updated } = await apiClient.post('/api/memories/media/', {
+                    memoryId: memory._id,
+                    url: cloudData.secure_url,
+                    publicId: cloudData.public_id,
+                    mediaType: resourceType
+                });
+                setMemory(updated);
             }
+            toast.success("Gallery updated!", { id: toastId });
         } catch (err) {
-            console.error("Upload error:", err);
-            toast.error("Some files failed to upload.");
+            toast.error("Upload failed", { id: toastId });
         } finally {
             setIsUploadingMedia(false);
-            toast.success("Memory preserved in vault");
-            setUploadProgress({ current: 0, total: 0 });
         }
     };
 
-    if (!memory) return null;
-
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "100%" }}
-                    transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                    className="fixed inset-0 z-[100] bg-white overflow-y-auto no-scrollbar pb-40"
-                >
-                    {/* 1. HERO MEDIA SECTION */}
-                    <div className="relative h-[65vh] w-full bg-slate-900">
-                        <MediaCarousel media={memory.media || []} />
+        <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[100] bg-white overflow-hidden"
+        >
+            <div ref={containerRef} className="h-full overflow-y-auto no-scrollbar">
+                {/* 1. STICKY MEDIA CANVAS */}
+                <div className="sticky top-0 h-[70vh] w-full overflow-hidden bg-slate-950 z-0">
+                    <motion.div style={{ y: mediaY, scale: mediaScale }} className="h-full w-full">
+                        <MediaCarousel
+                            media={memory.media || []}
+                            onIndexChange={(idx) => setActiveIndex(idx)}
+                        />
+                    </motion.div>
+                    <motion.div style={{ opacity: overlayOpacity }} className="absolute inset-0 bg-black z-10 pointer-events-none" />
 
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white pointer-events-none z-10" />
+                    <div className="absolute top-12 left-0 right-0 px-6 flex justify-between items-center z-30">
+                        <button onClick={onClose} className="w-12 h-12 flex items-center justify-center bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl text-white">
+                            <X size={22} />
+                        </button>
 
-                        <div className="absolute top-14 left-6 right-6 flex justify-between items-center z-30">
-                            <button
-                                onClick={onClose}
-                                className="p-3 bg-white/20 backdrop-blur-lg rounded-full text-white border border-white/30 active:scale-90 transition-transform"
-                            >
-                                <X size={24} />
+                        <div className="flex gap-2 p-1.5 bg-black/20 backdrop-blur-xl border border-white/10 rounded-[1.5rem]">
+                            <label className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white cursor-pointer">
+                                {isUploadingMedia ? <Loader2 className="animate-spin" size={18} /> : <Plus size={20} />}
+                                <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={handleAddMedia} disabled={isUploadingMedia} />
+                            </label>
+                            <button onClick={handleDownload} disabled={isDownloading} className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white">
+                                {isDownloading ? <Loader2 className="animate-spin" size={18} /> : <Download size={20} />}
                             </button>
-
-                            <div className="flex gap-2">
-                                {/* MULTI-SELECT Add Media Button */}
-                                <label className="relative p-3 bg-white/20 backdrop-blur-lg rounded-full text-white border border-white/30 cursor-pointer active:scale-90 transition-transform flex items-center justify-center">
-                                    {isUploadingMedia ? (
-                                        <div className="relative flex items-center justify-center">
-                                            <Loader2 size={24} className="animate-spin" />
-                                            <span className="absolute text-[8px] font-bold">
-                                                {uploadProgress.current}/{uploadProgress.total}
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <Plus size={24} />
-                                    )}
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        multiple
-                                        accept="image/*,video/*"
-                                        onChange={handleAddMedia}
-                                        disabled={isUploadingMedia}
-                                    />
-                                </label>
-
-                                <motion.button
-                                    whileTap={{ scale: 0.8 }}
-                                    onClick={toggleFavorite}
-                                    className={`p-3 rounded-full shadow-lg transition-colors border ${memory.isFavorite
-                                        ? "bg-rose-500 text-white border-rose-500"
-                                        : "bg-white/20 backdrop-blur-lg text-white border-white/30"
-                                        }`}
-                                >
-                                    <Heart size={24} fill={memory.isFavorite ? "currentColor" : "none"} />
-                                </motion.button>
-                            </div>
-                        </div>
-
-                        <div className="absolute bottom-16 left-8 z-20 flex flex-col gap-2">
-                            <div className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm flex items-center gap-2 border border-white w-fit">
-                                <MapPin size={14} className="text-memoryes-primary" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-memoryes-clay">
-                                    {memory.location?.name || "Discovery Point"}
-                                </span>
-                            </div>
-                            <div className="bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-white flex items-center gap-2 w-fit">
-                                <ImageIcon size={12} />
-                                {memory.media?.length || 0} Items
-                            </div>
+                            <button onClick={toggleFavorite} className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all ${memory.isFavorite ? 'bg-rose-500 text-white' : 'bg-white/10 text-white'}`}>
+                                <Heart size={20} fill={memory.isFavorite ? "currentColor" : "none"} />
+                            </button>
                         </div>
                     </div>
+                </div>
 
-                    {/* 2. TEXT CONTENT SECTION */}
-                    <div className="px-8 -mt-8 relative z-10">
-                        <header className="mb-10">
-                            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-[3px] mb-3">
-                                <Calendar size={14} />
-                                <span>{new Date(memory.capturedAt).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+                {/* 2. THE SCRAPBOOK SHEET */}
+                <div className="relative z-20 min-h-[60vh] bg-white rounded-t-[3.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] -mt-12">
+                    <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto pt-4 mb-4 translate-y-4" />
+                    <div className="px-8 pt-10 pb-48">
+                        <header className="mb-12">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="bg-memoryes-soft/50 text-memoryes-primary px-3 py-1 rounded-full flex items-center gap-1.5 border border-memoryes-primary/10">
+                                    <MapPin size={12} />
+                                    <span className="text-[10px] font-black uppercase">{memory.location?.name || "Discovery Point"}</span>
+                                </div>
                             </div>
-                            <h2 className="text-4xl font-serif italic text-memoryes-clay leading-tight">
-                                {memory.title}
-                            </h2>
+                            <h2 className="text-4xl font-serif italic text-slate-800 leading-tight mb-2">{memory.title}</h2>
+                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[4px]">
+                                {new Date(memory.capturedAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                            </p>
                         </header>
 
-                        <section className="space-y-8">
-                            <div className="flex items-center justify-between">
-                                <h4 className="text-[10px] font-black uppercase tracking-[4px] text-slate-300">Perspectives</h4>
-                                <div className="h-[1px] flex-1 bg-slate-100 ml-6" />
+                        <div className="space-y-8">
+                            <div className="flex items-center gap-4">
+                                <MessageCircle size={16} className="text-slate-300" />
+                                <span className="text-[11px] font-black uppercase tracking-[3px] text-slate-300">Perspectives</span>
+                                <div className="h-[1px] flex-1 bg-slate-50" />
                             </div>
-
                             {memory.perspectives?.map((p: any, i: number) => (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    key={i}
-                                    className="flex gap-4"
-                                >
-                                    <div className="w-10 h-10 rounded-2xl bg-memoryes-soft flex-shrink-0 flex items-center justify-center font-black text-memoryes-primary text-xs">
-                                        {p.userName?.charAt(0)}
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-wider">
-                                            {p.userName}
-                                        </p>
-                                        <div className="bg-slate-50 p-5 rounded-3xl rounded-tl-none border border-slate-100 shadow-sm shadow-slate-200/50">
-                                            <p className="text-sm leading-relaxed text-slate-600 italic">"{p.content}"</p>
+                                <motion.div key={i} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-2xl bg-memoryes-soft flex-shrink-0 flex items-center justify-center font-black text-memoryes-primary text-xs uppercase">
+                                            {p.userName?.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 bg-[#FBFBFF] border border-slate-50 p-5 rounded-[2.5rem] rounded-tl-none relative">
+                                            <Quote className="absolute top-4 right-6 text-memoryes-primary/5" size={40} />
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{p.userName}</p>
+                                            <p className="text-md font-serif italic text-slate-600 leading-relaxed">"{p.content}"</p>
                                         </div>
                                     </div>
                                 </motion.div>
                             ))}
-
-                            {(!memory.perspectives || memory.perspectives.length === 0) && (
-                                <div className="py-6 text-center border-2 border-dashed border-slate-50 rounded-[2.5rem]">
-                                    <p className="text-slate-300 text-sm italic font-medium">No perspectives shared yet.</p>
-                                </div>
-                            )}
-                        </section>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <AddPerspective
-                        memoryId={memory._id}
-                        onUpdate={(updated) => setMemory(updated)}
-                    />
-                </motion.div>
+            <div className="absolute bottom-0 left-0 right-0 z-50">
+                <AddPerspective memoryId={memory._id} onUpdate={(updated) => setMemory(updated)} />
+            </div>
+        </motion.div>
+    );
+};
+
+/**
+ * MAIN COMPONENT: This acts as the shell/AnimatePresence controller.
+ */
+export const MemoryDetailsView = ({ memory: initialMemory, isOpen, onClose }: MemoryDetailsProps) => {
+    const [memory, setMemory] = useState(initialMemory);
+
+    useEffect(() => {
+        if (initialMemory) setMemory(initialMemory);
+    }, [initialMemory]);
+
+    return (
+        <AnimatePresence>
+            {isOpen && memory && (
+                <MemoryDetailsContent
+                    memory={memory}
+                    setMemory={setMemory}
+                    onClose={onClose}
+                />
             )}
         </AnimatePresence>
     );

@@ -187,7 +187,10 @@ export default function Dashboard() {
 
       {/* MODALS */}
       <UploadMemory isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onRefresh={fetchData} />
-      <MemoryDetailsView memory={selectedMemory} isOpen={!!selectedMemory} onClose={() => setSelectedMemory(null)} />
+      {
+        !loading && filteredMemories.length > 0 && 
+        <MemoryDetailsView memory={selectedMemory} isOpen={!!selectedMemory} onClose={() => setSelectedMemory(null)} />
+      }
       <Navbar />
     </div>
   );

@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '20px',
-              color: '#4A4E69', // memoria-clay
+              color: '#4A4E69', // memoryes-clay
               fontFamily: 'inherit'
             },
           }}

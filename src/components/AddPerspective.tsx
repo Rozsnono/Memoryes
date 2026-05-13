@@ -1,7 +1,7 @@
 // components/AddPerspective.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Send, Mic, Smile, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import apiClient from "@/lib/apiClient";
@@ -10,6 +10,15 @@ import { toast } from "sonner";
 export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpdate: (updated: any) => void }) => {
     const [text, setText] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const { data: userData } = await apiClient.get('/api/auth/me/');
+            setUser(userData);
+        };
+        fetchUserData();
+    }, []);
 
     const handleSubmit = async () => {
         if (!text.trim()) return;
@@ -18,8 +27,8 @@ export const AddPerspective = ({ memoryId, onUpdate }: { memoryId: string, onUpd
         try {
             const { data } = await apiClient.post('/api/memories/perspective/', {
                 memoryId,
-                userId: "user_123", // Dummy user
-                userName: "Alex",    // Dummy name
+                userId: user?.id, // Use the fetched user ID
+                userName: user?.name,    // Use the fetched user name
                 content: text
             });
 
