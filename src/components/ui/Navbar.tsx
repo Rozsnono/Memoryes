@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, MessageCircle, Map as MapIcon, User, Plus, LayoutGrid } from "lucide-react";
+import { Home, MessageCircle, Map as MapIcon, User, Plus, LayoutGrid, PhoneCall } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -15,7 +15,8 @@ export const Navbar = () => {
         { icon: Home, label: "Vault", href: "/dashboard" },
         { icon: LayoutGrid, label: "Gallery", href: "/gallery" },
         { icon: Plus, label: "Add", href: "/upload", isCenter: true },
-        { icon: MapIcon, label: "Map", href: "/map" },
+        { icon: PhoneCall, label: "Call", href: "/chat" },
+        // { icon: MapIcon, label: "Map", href: "/map" },
         { icon: User, label: "Profile", href: "/profile" },
     ];
 

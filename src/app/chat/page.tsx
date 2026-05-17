@@ -1,150 +1,86 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, Send, Mic, MoreHorizontal, Paperclip } from "lucide-react";
-import Link from "next/link";
-import Pusher from "pusher-js";
 import apiClient from "@/lib/apiClient";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Loader2, Video, ChevronLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
-export default function ChatPage() {
-    const [messages, setMessages] = useState<any[]>([]);
-    const [inputText, setInputText] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-    const scrollRef = useRef<HTMLDivElement>(null);
+export default function ChatInitializerPage() {
+    const router = useRouter();
+    const [status, setStatus] = useState("Authenticating...");
+    const hasStarted = useRef(false); // Prevent double-trigger
 
-    // MOCK USER - In a real app, get this from your Auth Store
-    const currentUser = { id: "user_123", name: "Alex" };
-    const spaceId = "family_vault_1";
-
-    // 1. Load History & Setup Pusher
     useEffect(() => {
-        const fetchHistory = async () => {
+        // Prevent the effect from running twice in dev mode
+        if (hasStarted.current) return;
+
+        const initSequence = async () => {
+            hasStarted.current = true;
             try {
-                const { data } = await apiClient.get(`/api/messages?spaceId=${spaceId}/`);
-                setMessages(data);
-                setIsLoading(false);
-            } catch (err) {
-                console.error("History fetch failed");
+                const { data: user } = await apiClient.get('/api/auth/me/');
+
+                if (!user || !user.activeSpace) {
+                    toast.error("No active vault found.");
+                    router.push('/dashboard');
+                    return;
+                }
+
+                await startCall(user);
+
+            } catch (err: any) {
+                router.push('/login');
             }
         };
 
-        fetchHistory();
-
-        // Setup Pusher Client
-        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-            cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-        });
-
-        const channel = pusher.subscribe(spaceId);
-
-        channel.bind("new-message", (newMessage: any) => {
-            setMessages((prev) => [...prev, newMessage]);
-        });
-
-        return () => {
-            pusher.unsubscribe(spaceId);
-        };
+        initSequence();
     }, []);
 
-    // 2. Auto-scroll to bottom
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [messages]);
+    async function startCall(user: any) {
+        setStatus("Inviting family...");
 
-    // 3. Send Message Function
-    const sendMessage = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!inputText.trim()) return;
-
-        const messageText = inputText;
-        setInputText(""); // Optimistic UI: clear immediately
+        const channelId = typeof user.activeSpace === 'object'
+            ? user.activeSpace._id
+            : user.activeSpace;
 
         try {
-            await apiClient.post("/api/messages/", {
-                spaceId: "family_vault_1", // Make sure this matches your GET request
-                senderId: "user_123",
-                senderName: "Alex",
-                text: messageText,
+            // Optional: Send the Pusher message
+            await apiClient.post('/api/messages/', {
+                spaceId: channelId,
+                senderId: user._id,
+                senderName: user.name,
+                text: "🎥 I'm starting a video call!",
                 type: 'text'
             });
+
+            setStatus("Entering Vault...");
+            // Use replace instead of push to prevent back-button loops
+            router.replace(`/call?channel=${channelId}`);
+
         } catch (err: any) {
-            console.error("Frontend Error:", err.response?.data || err.message);
-            toast.error("Failed to send: " + (err.response?.data?.error || "Network Error"));
-            setInputText(messageText); // Put text back if failed
+            // If the message fails, still try to join the call
+            router.replace(`/call?channel=${channelId}`);
         }
-    };
+    }
+
     return (
-        <div className="flex flex-col h-screen bg-[#F8F9FA]">
-            {/* Header */}
-            <header className="px-4 pt-12 pb-4 bg-white/90 backdrop-blur-xl border-b border-slate-100 flex items-center gap-3 sticky top-0 z-30">
-                <Link href="/dashboard" className="p-2 -ml-2 text-slate-400">
-                    <ChevronLeft size={24} />
-                </Link>
-                <div className="w-10 h-10 rounded-2xl bg-memoryes-soft flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
-                    <div className="w-full h-full bg-memoryes-primary flex items-center justify-center text-white font-bold text-xs">V</div>
-                </div>
-                <div className="flex-1">
-                    <h2 className="text-sm font-bold text-memoryes-clay leading-none">Family Vault</h2>
-                    <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider mt-1 italic">Real-time Active</p>
-                </div>
-                <button className="p-2 text-slate-400"><MoreHorizontal size={20} /></button>
-            </header>
-
-            {/* Messages List */}
-            <div
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar pb-32"
+        <div className="h-screen w-full bg-memoria-background flex flex-col items-center justify-center p-8">
+            <button
+                onClick={() => router.push('/dashboard')}
+                className="absolute top-12 left-6 p-3 bg-white rounded-full shadow-sm text-slate-400"
             >
-                {isLoading ? (
-                    <div className="flex justify-center py-10 text-slate-300 text-xs font-bold uppercase tracking-widest">Loading Conversation...</div>
-                ) : (
-                    messages.map((msg) => (
-                        <div key={msg._id} className={`flex flex-col ${msg.senderId === currentUser.id ? "items-end" : "items-start"}`}>
-                            {msg.senderId !== currentUser.id && (
-                                <span className="text-[9px] font-bold text-slate-400 mb-1 ml-2 uppercase tracking-tighter">{msg.senderName}</span>
-                            )}
-                            <div className={`max-w-[80%] p-4 rounded-[1.8rem] text-sm shadow-sm ${msg.senderId === currentUser.id
-                                ? "bg-memoryes-clay text-white rounded-tr-none"
-                                : "bg-white text-memoryes-clay rounded-tl-none border border-slate-100"
-                                }`}>
-                                {msg.text}
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
+                <ChevronLeft size={20} />
+            </button>
 
-            {/* Input Bar */}
-            <div className="bg-white border-t border-slate-100 px-4 pt-3 pb-10">
-                <form onSubmit={sendMessage} className="flex items-end gap-2 max-w-md mx-auto">
-                    <button type="button" className="p-2 mb-1 text-memoryes-primary bg-memoryes-soft rounded-full">
-                        <Paperclip size={20} />
-                    </button>
+            <motion.div animate={{ scale: [0.9, 1, 0.9] }} transition={{ repeat: Infinity, duration: 2 }} className="w-20 h-20 bg-memoria-soft rounded-[2rem] flex items-center justify-center mb-6 shadow-lg">
+                <Video size={32} className="text-memoria-primary" />
+            </motion.div>
 
-                    <div className="flex-1 bg-slate-50 rounded-[1.5rem] border border-slate-200 p-1 flex items-end">
-                        <textarea
-                            rows={1}
-                            value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(e); } }}
-                            placeholder="Message..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 px-3 resize-none max-h-32 outline-none"
-                        />
-                    </div>
-
-                    <motion.button
-                        whileTap={{ scale: 0.9 }}
-                        type="submit"
-                        className={`p-3 mb-0.5 rounded-full shadow-lg transition-colors ${inputText ? "bg-memoryes-clay text-white" : "bg-slate-100 text-slate-300"
-                            }`}
-                    >
-                        <Send size={20} fill={inputText ? "currentColor" : "none"} />
-                    </motion.button>
-                </form>
+            <h1 className="text-xl font-serif italic text-memoria-clay">Memoria Live</h1>
+            <div className="flex items-center gap-2 mt-2 text-slate-400">
+                <Loader2 size={12} className="animate-spin" />
+                <span className="text-[9px] font-black uppercase tracking-[2px]">{status}</span>
             </div>
         </div>
     );
