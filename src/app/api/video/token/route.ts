@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { RtcTokenBuilder, RtcRole } from 'agora-access-token'; // You may need to npm install agora-access-token
 import { handleOptions } from '@/lib/cors';
 
-// CRITICAL: This prevents the 'output: export' error
 
 
 export async function OPTIONS(request: Request) {
@@ -16,7 +15,7 @@ export async function POST(req: Request) {
         const appCertificate = process.env.AGORA_APP_CERTIFICATE!;
 
         // Token expires in 1 hour
-        const expirationTimeInSeconds = 3600;
+        const expirationTimeInSeconds = 3600 * 5; // 5 hours for better UX
         const privilegeExpireTime = Math.floor(Date.now() / 1000) + expirationTimeInSeconds;
 
         const token = RtcTokenBuilder.buildTokenWithUid(
