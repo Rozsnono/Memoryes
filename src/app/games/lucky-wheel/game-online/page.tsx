@@ -237,9 +237,6 @@ function OnlineGameContent() {
                         }}
                         className="min-w-[130px] p-4 rounded-[2rem] border-2 shadow-sm flex flex-col items-center text-center transition-colors"
                     >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 font-black text-[10px] ${idx === lobby.activePlayerIdx ? 'bg-memoryes-primary text-white shadow-lg shadow-memoryes-primary/30' : 'bg-memoryes-soft text-memoryes-primary'}`}>
-                            {name.charAt(0)}
-                        </div>
                         <p className="text-[10px] font-bold truncate w-full">{name} {name === onlinePlayerName && ' (You)'}</p>
                         <p className="text-sm font-black text-memoryes-primary">{lobby.playerScores[idx]}$</p>
                         <p className="text-[8px] font-black text-slate-300 uppercase">Bank: {lobby.playerTotalScores[idx]}$</p>

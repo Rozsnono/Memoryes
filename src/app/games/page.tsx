@@ -12,7 +12,8 @@ import {
     ChevronRight,
     Lock,
     FerrisWheel,
-    Grid
+    Grid,
+    MapPin
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
@@ -47,6 +48,15 @@ const GAMES = [
         path: "/games/sliding-puzzle"
     },
     {
+        id: "geoguessr",
+        title: "GeoGuessr",
+        desc: "Guess the location of your vault's memories.",
+        icon: MapPin,
+        color: "bg-memoryes-primary",
+        status: "Ready",
+        path: "/games/geoguessr"
+    },
+    {
         id: "truth-or-dare",
         title: "Family Truths",
         desc: "Deep questions to spark meaningful conversations.",
@@ -79,7 +89,7 @@ export default function GamesPage() {
             </header>
 
             {/* 2. GAME GRID */}
-            <main className="px-6 space-y-4">
+            <main className="px-6 space-y-4 pb-32">
                 {GAMES.map((game, idx) => (
                     <motion.div
                         key={game.id}
