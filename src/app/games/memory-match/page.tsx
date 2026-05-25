@@ -38,6 +38,8 @@ const GRID_OPTIONS: GridConfig[] = [
     { rows: 3, cols: 2, label: "Beginner (3 Pairs)", icon: Grid2X2 },
     { rows: 4, cols: 3, label: "Explorer (6 Pairs)", icon: Grid3X3 },
     { rows: 4, cols: 4, label: "Master (8 Pairs)", icon: LayoutGrid },
+    { rows: 6, cols: 3, label: "Vault Keeper (9 Pairs)", icon: Grid3X3 },
+    { rows: 6, cols: 4, label: "Archivist (12 Pairs)", icon: LayoutGrid }
 ];
 
 export default function MemoryMatchGame() {
@@ -66,10 +68,11 @@ export default function MemoryMatchGame() {
 
         try {
             const { data: user } = await apiClient.get('/api/auth/me/');
-            const { data: memories } = await apiClient.get(`/api/memories/?spaceId=${user.activeSpace}`);
+            const { data: memories } = await apiClient.get(`/api/memories/random?spaceId=${user.activeSpace}&limit=${totalPairs}`);
 
             // Flatten all media and get unique images
-            const allImages = memories.flatMap((m: any) => m.media.map((img: any) => img.url));
+            console.log("Fetched Memories:", memories);
+            const allImages = memories.flatMap((m: any) => m.url);
             const uniqueImages = Array.from(new Set(allImages)).slice(0, totalPairs);
 
             if (uniqueImages.length < totalPairs) {
@@ -92,6 +95,7 @@ export default function MemoryMatchGame() {
             setCards(gameCards);
             setGameState('playing');
         } catch (err) {
+            console.error(err);
             toast.error("Failed to load vault assets");
             setGameState('settings');
         }
@@ -154,8 +158,8 @@ export default function MemoryMatchGame() {
                             key={opt.label}
                             onClick={() => setGrid(opt)}
                             className={`w-full p-6 rounded-[2.5rem] flex items-center gap-6 border-2 transition-all ${grid.label === opt.label
-                                    ? 'bg-white border-memoryes-primary shadow-lg scale-[1.02]'
-                                    : 'bg-white/50 border-transparent opacity-60'
+                                ? 'bg-white border-memoryes-primary shadow-lg scale-[1.02]'
+                                : 'bg-white/50 border-transparent opacity-60'
                                 }`}
                         >
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${grid.label === opt.label ? 'bg-memoryes-soft text-memoryes-primary' : 'bg-slate-100 text-slate-400'}`}>

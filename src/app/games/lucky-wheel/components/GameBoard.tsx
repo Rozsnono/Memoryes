@@ -12,7 +12,6 @@ import {
     Trophy,
     User,
     RefreshCcw,
-    Skull,
     History
 } from 'lucide-react';
 import apiClient from '@/lib/apiClient';
@@ -52,7 +51,6 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
     const [wheelResult, setWheelResult] = useState<WheelSegment | null>(null);
     const [saving, setSaving] = useState(false);
 
-    // Initialize Game State
     useEffect(() => {
         if (savedState) {
             setPlayers(savedState.players);
@@ -75,7 +73,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         setSaving(true);
         const toastId = toast.loading("Saving vault state...");
         try {
-            const { data } = await apiClient.post('/api/lucky-wheel/save', {
+            await apiClient.post('/api/lucky-wheel/save/', {
                 phrase: remotePuzzle.phrase,
                 category: remotePuzzle.category,
                 revealedLetters: Array.from(revealedLetters),
@@ -83,7 +81,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                 activePlayerIdx,
                 gameMode,
             });
-            toast.success(`Game Saved! Code: ${data.saveCode}`, { id: toastId });
+            toast.success(`Game Saved!`, { id: toastId });
         } catch (err) {
             toast.error("Failed to save progress", { id: toastId });
         } finally {
@@ -95,7 +93,6 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         if (players.length <= 1) {
             toast.info(reasonMessage);
             setGameState('IDLE');
-            setWheelResult(null);
             return;
         }
         const nextIndex = (activePlayerIdx + 1) % players.length;
@@ -105,47 +102,70 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         setWheelResult(null);
     };
 
-    // --- GRID LOGIC (Preserved from your code) ---
+    // --- UPDATED GRID LOGIC WITH HYPHENATION ---
     const renderBoardGrid = () => {
+        const COLS = 12; // Fixed column count for mobile readability
         const words = remotePuzzle.phrase.toUpperCase().split(' ');
-        const maxWordLength = Math.max(...words.map(w => w.length));
-        const COLS = Math.max(maxWordLength + 2, 12);
-        let currentWordIndex = 0;
         const activeRows: { char: string; isActive: boolean; isRevealed: boolean }[][] = [];
 
-        while (currentWordIndex < words.length) {
-            let rowWords: string[] = [];
-            let lengthCounter = 0;
-            while (currentWordIndex < words.length) {
-                const nextWord = words[currentWordIndex];
-                const extraSpace = rowWords.length > 0 ? 1 : 0;
-                if (lengthCounter + extraSpace + nextWord.length <= COLS) {
-                    rowWords.push(nextWord);
-                    lengthCounter += extraSpace + nextWord.length;
+        let currentWordIndex = 0;
+        let workingWords = [...words];
+
+        while (currentWordIndex < workingWords.length) {
+            let row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
+            let remainingSpace = COLS;
+            let currentPos = 0;
+
+            // Try to fit words in the current row
+            while (currentWordIndex < workingWords.length) {
+                let word = workingWords[currentWordIndex];
+
+                // If word is too long for the entire row, we must split and hyphenate
+                if (word.length > COLS) {
+                    const part1 = word.slice(0, COLS - 1) + "-";
+                    const part2 = word.slice(COLS - 1);
+
+                    // Put part 1 in this row
+                    for (let i = 0; i < part1.length; i++) {
+                        row[i] = {
+                            char: part1[i],
+                            isActive: true,
+                            isRevealed: part1[i] === "-" || revealedLetters.has(part1[i])
+                        };
+                    }
+                    activeRows.push(row);
+                    // Update the word list to include the remainder
+                    workingWords[currentWordIndex] = part2;
+                    // Move to next row immediately since we filled this one
+                    row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
+                    remainingSpace = COLS;
+                    currentPos = 0;
+                    continue;
+                }
+
+                // If word fits in remaining space
+                if (word.length <= remainingSpace) {
+                    // Center alignment logic within the row segment
+                    for (let i = 0; i < word.length; i++) {
+                        row[currentPos + i] = {
+                            char: word[i],
+                            isActive: true,
+                            isRevealed: revealedLetters.has(word[i])
+                        };
+                    }
+                    currentPos += word.length + 1; // +1 for space
+                    remainingSpace -= (word.length + 1);
                     currentWordIndex++;
-                } else break;
+                } else {
+                    // Word doesn't fit, break to next row
+                    break;
+                }
             }
-            if (rowWords.length > 0) {
-                const row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
-                const rowStr = rowWords.join(' ');
-                const startCol = Math.floor((COLS - rowStr.length) / 2);
-                for (let i = 0; i < rowStr.length; i++) {
-                    const char = rowStr[i];
-                    row[startCol + i] = { char, isActive: char !== ' ', isRevealed: char === ' ' || revealedLetters.has(char) };
-                }
+            if (row.some(tile => tile.isActive)) {
                 activeRows.push(row);
-            } else if (currentWordIndex < words.length) {
-                const longWord = words[currentWordIndex];
-                const row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
-                const truncateWord = longWord.slice(0, COLS);
-                const startCol = Math.floor((COLS - truncateWord.length) / 2);
-                for (let i = 0; i < truncateWord.length; i++) {
-                    row[startCol + i] = { char: truncateWord[i], isActive: true, isRevealed: revealedLetters.has(truncateWord[i]) };
-                }
-                activeRows.push(row);
-                words[currentWordIndex] = longWord.slice(COLS);
             }
         }
+
         return { rows: activeRows, cols: COLS };
     };
 
@@ -153,11 +173,11 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         setWheelResult(segment);
         if (segment.value === 'LOST') {
             setPlayers(prev => prev.map((p, idx) => idx === activePlayerIdx ? { ...p, roundScore: 0 } : p));
-            nextTurn('Bankrupt! Balance cleared.');
+            nextTurn('Bankrupt!');
         } else if (segment.value === 'SKIP') {
             nextTurn('Turn skipped!');
         } else {
-            toast.success(`${segment.value}$ Spinned! Choose a letter.`);
+            toast.success(`${segment.value}$ Spinned!`);
             setGameState('SPINNED');
         }
     };
@@ -169,7 +189,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         if (isVowel) {
             const cost = 250;
             if (activePlayer.roundScore < cost && activePlayer.totalScore < cost) {
-                toast.error('Insufficient funds for a vowel!');
+                toast.error('Not enough money!');
                 return;
             }
             setPlayers(prev => prev.map((p, idx) => {
@@ -190,14 +210,10 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
             if (!isVowel && wheelResult && typeof wheelResult.value === 'number') {
                 const gained = wheelResult.value * occurrences;
                 setPlayers(prev => prev.map((p, idx) => idx === activePlayerIdx ? { ...p, roundScore: p.roundScore + gained } : p));
-                toast.success(`Found ${occurrences} of "${letter}"! +${gained}$`);
-            } else {
-                toast.success(`Found ${occurrences} of "${letter}"!`);
             }
             setGameState('IDLE');
-            setWheelResult(null);
         } else {
-            nextTurn(`Sorry, no "${letter}" in this puzzle.`);
+            nextTurn(`No "${letter}"`);
         }
     };
 
@@ -210,12 +226,11 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         if (occurrences > 0) {
             const isFullySolved = remotePuzzle.phrase.toUpperCase().split('').every(char => char === ' ' || nextRevealed.has(char));
             if (isFullySolved) {
-                toast.success(`Congratulations ${players[activePlayerIdx].name}! Puzzle Solved!`);
                 setPlayers(prev => prev.map((p, idx) => idx === activePlayerIdx ? { ...p, totalScore: p.totalScore + p.roundScore, roundScore: 0 } : p));
                 setGameState('GAME_OVER');
             }
         } else {
-            nextTurn(`Wrong letter! Solution attempt failed.`);
+            nextTurn(`Wrong letter! Solution failed.`);
         }
     };
 
@@ -226,19 +241,17 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
     return (
         <div className="min-h-screen w-full bg-memoryes-background text-memoryes-clay flex flex-col items-center justify-between pb-10 relative overflow-hidden">
 
-            {/* Header: Actions */}
             <header className="w-full p-6 pt-12 flex justify-between items-center bg-white/50 backdrop-blur-md border-b border-slate-100 z-50">
                 <div className="flex gap-2">
-                    <button onClick={onBackToMenu} className="p-3 bg-white rounded-2xl shadow-sm hover:bg-slate-50 transition-all text-slate-400">
+                    <button onClick={onBackToMenu} className="p-3 bg-white rounded-2xl shadow-sm hover:bg-slate-50 text-slate-400">
                         <ChevronLeft size={20} />
                     </button>
                     {gameState !== 'GAME_OVER' && (
-                        <button onClick={handleSaveGame} disabled={saving} className="p-3 bg-white rounded-2xl shadow-sm hover:bg-slate-50 transition-all text-memoryes-primary">
+                        <button onClick={handleSaveGame} disabled={saving} className="p-3 bg-white rounded-2xl shadow-sm text-memoryes-primary">
                             <Save size={20} />
                         </button>
                     )}
                 </div>
-
                 <div className="text-right">
                     <p className="text-[9px] font-black uppercase tracking-[3px] text-slate-300">Turn Owner</p>
                     <h3 className="text-lg font-serif italic text-memoryes-clay">{activePlayer?.name}</h3>
@@ -337,7 +350,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                                             key={l}
                                             disabled={revealedLetters.has(l)}
                                             onClick={() => gameState === 'SOLVING' ? handleSolveLetterSelect(l) : handleLetterSelect(l, gameState === 'BUYING_VOWEL')}
-                                            className={`aspect-square rounded-xl flex items-center justify-center font-bold transition-all ${revealedLetters.has(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoryes-soft/30 text-memoryes-clay active:scale-90 active:bg-memoryes-primary active:text-white'}`}
+                                            className={`aspect-square rounded-xl flex items-center justify-center font-bold transition-all ${revealedLetters.has(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoryes-soft/30 text-memoryes-clay active:bg-memoryes-primary active:text-white'}`}
                                         >
                                             {l}
                                         </button>
@@ -353,11 +366,10 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                             </div>
                             <div>
                                 <h2 className="text-3xl font-serif italic text-memoryes-clay">Puzzle Solved</h2>
-                                <p className="text-slate-400 text-sm mt-2">The vault record has been updated.</p>
+                                <button onClick={onBackToMenu} className="w-full py-5 bg-memoryes-clay text-white rounded-[1.5rem] font-bold shadow-2xl flex items-center justify-center gap-3">
+                                    <History size={20} /> Back to Lounge
+                                </button>
                             </div>
-                            <button onClick={onBackToMenu} className="w-full py-5 bg-memoryes-clay text-white rounded-[1.5rem] font-bold shadow-2xl flex items-center justify-center gap-3">
-                                <History size={20} /> Back to Lounge
-                            </button>
                         </motion.div>
                     )}
                 </AnimatePresence>

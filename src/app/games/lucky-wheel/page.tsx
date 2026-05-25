@@ -41,7 +41,7 @@ export default function WheelGameMenu() {
         async function fetchThemes() {
             try {
                 // Using our central apiClient
-                const { data } = await apiClient.get('/api/lucky-wheel/themes');
+                const { data } = await apiClient.get('/api/lucky-wheel/themes/');
                 if (data.data.length > 0) {
                     setThemes(data.data);
                     setSelectedThemeIds([data.data[0]._id]);
@@ -82,7 +82,7 @@ export default function WheelGameMenu() {
         }
         setLoading(true);
         try {
-            const { data } = await apiClient.get(`/api/save/${loadCodeInput}`);
+            const { data } = await apiClient.get(`/api/save/${loadCodeInput}/`);
             router.push(`/games/lucky-wheel/game?saveCode=${data.saveCode}`);
         } catch (err) {
             toast.error('Invalid save code');

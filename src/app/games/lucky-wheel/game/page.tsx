@@ -39,7 +39,7 @@ function GameContent() {
             // 1. If loading from a Save Code (The "Vault Recovery" Flow)
             if (saveCodeParam) {
                 try {
-                    const { data } = await apiClient.get(`/api/lucky-wheel/save/${saveCodeParam}`);
+                    const { data } = await apiClient.get(`/api/lucky-wheel/save/${saveCodeParam}/`);
                     setPuzzle({
                         phrase: data.phrase,
                         category: data.category
@@ -80,7 +80,7 @@ function GameContent() {
 
             try {
                 // Fetch puzzles from themes
-                const { data } = await apiClient.get('/api/lucky-wheel/themes');
+                const { data } = await apiClient.get('/api/lucky-wheel/themes/');
                 const selectedIds = idParam.split(',');
                 const activeThemes = data.data.filter((t: any) => selectedIds.includes(t._id));
 

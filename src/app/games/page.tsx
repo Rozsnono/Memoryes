@@ -28,6 +28,15 @@ const GAMES = [
         path: "/games/memory-match"
     },
     {
+        id: "luckywheel",
+        title: "Lucky Wheel",
+        desc: "Guess the random puzzle.",
+        icon: FerrisWheel,
+        color: "bg-memoryes-accent",
+        status: "Ready",
+        path: "/games/lucky-wheel"
+    },
+    {
         id: "truth-or-dare",
         title: "Family Truths",
         desc: "Deep questions to spark meaningful conversations.",
@@ -36,15 +45,7 @@ const GAMES = [
         status: "Comming soon!",
         path: "/games/family-truths"
     },
-    {
-        id: "luckywheel",
-        title: "Lucky Wheel",
-        desc: "Guess the random puzzle.",
-        icon: FerrisWheel,
-        color: "bg-memoryes-accent",
-        status: "Ready",
-        path: "/games/lucky-wheel"
-    }
+
 ];
 
 export default function GamesPage() {
@@ -77,8 +78,8 @@ export default function GamesPage() {
                         transition={{ delay: idx * 0.1 }}
                         onClick={() => game.status === "Ready" && router.push(game.path)}
                         className={`relative p-6 rounded-[2.5rem] border-2 transition-all cursor-pointer flex items-center gap-6 ${game.status === "Ready"
-                                ? "bg-white border-white shadow-sm active:scale-[0.98] active:shadow-inner"
-                                : "bg-slate-50/50 border-transparent opacity-60 grayscale cursor-not-allowed"
+                            ? "bg-white border-white shadow-sm active:scale-[0.98] active:shadow-inner"
+                            : "bg-slate-50/50 border-transparent opacity-60 grayscale cursor-not-allowed"
                             }`}
                     >
                         {/* Icon Container */}
@@ -112,18 +113,6 @@ export default function GamesPage() {
                         )}
                     </motion.div>
                 ))}
-
-                {/* 3. PROMO SECTION */}
-                <div className="mt-8 bg-memoryes-clay p-8 rounded-[3rem] text-center relative overflow-hidden">
-                    <Sparkles className="absolute top-4 left-4 text-white/10" size={60} />
-                    <h4 className="text-white font-serif italic text-xl relative z-10">Compete with Family</h4>
-                    <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest mt-2 relative z-10">
-                        Monthly Leaderboard resets in 4 days
-                    </p>
-                    <button className="mt-6 bg-white text-memoryes-clay px-6 py-2.5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">
-                        View Standings
-                    </button>
-                </div>
             </main>
 
             <Navbar />

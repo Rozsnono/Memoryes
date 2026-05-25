@@ -75,7 +75,7 @@ function LobbiesContent() {
         if (savedCode) {
             const restoreSession = async () => {
                 try {
-                    const { data } = await apiClient.get(`/api/lucky-wheel/lobby/${savedCode}`);
+                    const { data } = await apiClient.get(`/api/lucky-wheel/lobby/${savedCode}/`);
                     if (data && data.data.status === 'waiting' && data.data.players.includes(savedName || '')) {
                         setActiveLobby(data.data);
                         setViewState('WAITING_ROOM');
@@ -95,7 +95,7 @@ function LobbiesContent() {
     useEffect(() => {
         const fetchThemes = async () => {
             try {
-                const { data } = await apiClient.get('/api/lucky-wheel/themes');
+                const { data } = await apiClient.get('/api/lucky-wheel/themes/');
                 if (data.data.length > 0) {
                     setThemes(data.data);
                     setSelectedThemeIds([data.data[0]._id]);
@@ -112,7 +112,7 @@ function LobbiesContent() {
         if (viewState === 'BROWSE') {
             const fetchList = async () => {
                 try {
-                    const { data } = await apiClient.get('/api/lucky-wheel/lobby');
+                    const { data } = await apiClient.get('/api/lucky-wheel/lobby/');
                     setOpenLobbies(data.data);
                 } catch (e) { }
             };
@@ -126,7 +126,7 @@ function LobbiesContent() {
         if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = setInterval(async () => {
             try {
-                const { data } = await apiClient.get(`/api/lucky-wheel/lobby/${code}`);
+                const { data } = await apiClient.get(`/api/lucky-wheel/lobby/${code}/`);
                 setActiveLobby(data.data);
                 if (data.data.status === 'active') {
                     clearInterval(pollingIntervalRef.current!);
@@ -147,7 +147,7 @@ function LobbiesContent() {
 
         try {
             // 1. Get themes and filter selected ones
-            const themesRes = await apiClient.get('/api/lucky-wheel/themes');
+            const themesRes = await apiClient.get('/api/lucky-wheel/themes/');
             const activeThemes = themesRes.data.data.filter((t: any) => activeLobby.themes.includes(t._id));
 
             // 2. Pool all puzzles
@@ -168,7 +168,7 @@ function LobbiesContent() {
             const initialScores = activeLobby.players.map(() => 0);
 
             // 4. PUT request to set lobby as active
-            await apiClient.put(`/api/lucky-wheel/lobby/${activeLobby.code}`, {
+            await apiClient.put(`/api/lucky-wheel/lobby/${activeLobby.code}/`, {
                 status: 'active',
                 phrase: selectedPuzzle.phrase,
                 category: selectedPuzzle.category,
@@ -196,7 +196,7 @@ function LobbiesContent() {
         if (selectedThemeIds.length === 0) return toast.error("Select at least one theme");
         setLoading(true);
         try {
-            const { data } = await apiClient.post('/api/lucky-wheel/lobby', {
+            const { data } = await apiClient.post('/api/lucky-wheel/lobby/', {
                 hostName: onlinePlayerName.trim(),
                 maxPlayers: maxPlayersOnline,
                 passcode: lobbyPasscode.trim(),
@@ -218,7 +218,7 @@ function LobbiesContent() {
     const handleJoinLobby = async (code: string, passcode = '') => {
         setLoading(true);
         try {
-            const { data } = await apiClient.post('/api/lucky-wheel/lobby/join', {
+            const { data } = await apiClient.post('/api/lucky-wheel/lobby/join/', {
                 code: code.toUpperCase(),
                 playerName: onlinePlayerName.trim(),
                 passcode
@@ -238,7 +238,7 @@ function LobbiesContent() {
     const handleLeaveLobby = async () => {
         if (!activeLobby) return;
         try {
-            await apiClient.post('/api/lucky-wheel/lobby/leave', {
+            await apiClient.post('/api/lucky-wheel/lobby/leave/', {
                 code: activeLobby.code,
                 playerName: onlinePlayerName
             });
@@ -270,7 +270,7 @@ function LobbiesContent() {
                 )}
             </header>
 
-            <div className="p-6 max-w-2xl mx-auto w-full space-y-6">
+            <div className="p-4 max-w-2xl mx-auto w-full space-y-6">
                 <AnimatePresence mode="wait">
 
                     {/* VIEW: BROWSE */}
