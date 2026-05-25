@@ -80,13 +80,13 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         }
     };
 
-    // --- LOGIC: DYNAMIC GRID WITH HYPHENATION & CENTERING ---
-    const renderBoardGrid = () => {
-        const COLS = 12;
+    const _renderBoardGrid = () => {
         const words = remotePuzzle.phrase.toUpperCase().split(' ');
-        const rows: { char: string; isActive: boolean; isRevealed: boolean }[][] = [];
+        const longestWordLength = Math.max(...words.map(w => w.length));
+        const COLS = Math.max(12, longestWordLength + 2);
+        const rows: { char: string; isActive: boolean; isRevealed: boolean; isSeparator?: boolean }[][] = [];
 
-        let currentLine: { char: string; isActive: boolean; isRevealed: boolean }[] = [];
+        let currentLine: { char: string; isActive: boolean; isRevealed: boolean; isSeparator?: boolean }[] = [];
 
         const commitLine = () => {
             if (currentLine.length === 0) return;
@@ -103,9 +103,9 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
             currentLine = [];
         };
 
-        let workingWords = [...words];
+        const workingWords = [...words];
         for (let i = 0; i < workingWords.length; i++) {
-            let word = workingWords[i];
+            const word = workingWords[i];
 
             // If word is strictly too long for a single row (12 chars)
             if (word.length > COLS) {
@@ -138,7 +138,9 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         commitLine();
 
         return { rows, cols: COLS };
-    };
+
+    }
+
 
     const handleSpinComplete = (segment: WheelSegment) => {
         setWheelResult(segment);
@@ -205,7 +207,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         setWheelResult(null);
     };
 
-    const { rows: boardGrid, cols: totalCols } = renderBoardGrid();
+    const { rows: boardGrid, cols: totalCols } = _renderBoardGrid();
     const activePlayer = players[activePlayerIdx];
     const canAffordVowel = activePlayer ? (activePlayer.roundScore >= 250 || activePlayer.totalScore >= 250) : false;
 
