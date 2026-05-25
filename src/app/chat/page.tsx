@@ -65,7 +65,7 @@ export default function ChatInitializerPage() {
     }
 
     return (
-        <div className="h-screen w-full bg-memoria-background flex flex-col items-center justify-center p-8">
+        <div className="h-screen w-full bg-memoryes-background flex flex-col items-center justify-center p-8">
             <button
                 onClick={() => router.push('/dashboard')}
                 className="absolute top-12 left-6 p-3 bg-white rounded-full shadow-sm text-slate-400"
@@ -73,11 +73,11 @@ export default function ChatInitializerPage() {
                 <ChevronLeft size={20} />
             </button>
 
-            <motion.div animate={{ scale: [0.9, 1, 0.9] }} transition={{ repeat: Infinity, duration: 2 }} className="w-20 h-20 bg-memoria-soft rounded-[2rem] flex items-center justify-center mb-6 shadow-lg">
-                <Video size={32} className="text-memoria-primary" />
+            <motion.div animate={{ scale: [0.9, 1, 0.9] }} transition={{ repeat: Infinity, duration: 2 }} className="w-20 h-20 bg-memoryes-soft rounded-[2rem] flex items-center justify-center mb-6 shadow-lg">
+                <Video size={32} className="text-memoryes-primary" />
             </motion.div>
 
-            <h1 className="text-xl font-serif italic text-memoria-clay">Memoria Live</h1>
+            <h1 className="text-xl font-serif italic text-memoryes-clay">memoryes Live</h1>
             <div className="flex items-center gap-2 mt-2 text-slate-400">
                 <Loader2 size={12} className="animate-spin" />
                 <span className="text-[9px] font-black uppercase tracking-[2px]">{status}</span>

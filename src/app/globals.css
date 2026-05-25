@@ -7,7 +7,19 @@
   --color-memoryes-accent: #FFD1DC;
   --color-memoryes-mint: #E0F2F1;
   --color-memoryes-clay: #4A4E69;
-  
+
   --font-serif: "Playfair Display", serif;
 }
 
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

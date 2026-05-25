@@ -121,7 +121,7 @@ function CallContainer() {
                 {/* Empty State */}
                 {remoteUsersCount === 0 && !isLocalMain && joined && (
                     <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
-                        <Loader2 className="animate-spin text-memoria-primary/40" size={40} />
+                        <Loader2 className="animate-spin text-memoryes-primary/40" size={40} />
                         <p className="text-white/20 text-[10px] font-black uppercase tracking-[4px]">Waiting for family...</p>
                     </div>
                 )}
