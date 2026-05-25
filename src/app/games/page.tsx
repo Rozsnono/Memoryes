@@ -13,7 +13,8 @@ import {
     Lock,
     FerrisWheel,
     Grid,
-    MapPin
+    MapPin,
+    MessageCircleIcon
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
@@ -55,6 +56,15 @@ const GAMES = [
         color: "bg-memoryes-primary",
         status: "Ready",
         path: "/games/geoguessr"
+    },
+    {
+        id: "perspectives",
+        title: "Echo Challenge",
+        desc: "Can you link the family's feelings to the moments they shared?",
+        icon: MessageCircleIcon,
+        color: "bg-memoryes-accent",
+        status: "Ready",
+        path: "/games/perspectives"
     },
     {
         id: "truth-or-dare",
