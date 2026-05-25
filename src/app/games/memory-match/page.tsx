@@ -135,15 +135,15 @@ export default function MemoryMatchGame() {
     // --- RENDER: SETTINGS SCREEN ---
     if (gameState === 'settings') {
         return (
-            <div className="min-h-screen bg-memoria-background p-8 flex flex-col justify-center">
+            <div className="min-h-screen bg-memoryes-background p-8 flex flex-col justify-center">
                 <header className="mb-12 text-center">
                     <button onClick={() => router.back()} className="absolute top-12 left-6 p-3 bg-white rounded-2xl shadow-sm text-slate-400">
                         <ChevronLeft size={24} />
                     </button>
-                    <div className="w-20 h-20 bg-memoria-soft rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-xl">
-                        <Brain size={40} className="text-memoria-primary" />
+                    <div className="w-20 h-20 bg-memoryes-soft rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-xl">
+                        <Brain size={40} className="text-memoryes-primary" />
                     </div>
-                    <h1 className="text-4xl font-serif italic text-memoria-clay">Memory Match</h1>
+                    <h1 className="text-4xl font-serif italic text-memoryes-clay">Memory Match</h1>
                     <p className="text-slate-400 text-sm mt-2">Test your recall of the vault's history.</p>
                 </header>
 
@@ -154,15 +154,15 @@ export default function MemoryMatchGame() {
                             key={opt.label}
                             onClick={() => setGrid(opt)}
                             className={`w-full p-6 rounded-[2.5rem] flex items-center gap-6 border-2 transition-all ${grid.label === opt.label
-                                    ? 'bg-white border-memoria-primary shadow-lg scale-[1.02]'
+                                    ? 'bg-white border-memoryes-primary shadow-lg scale-[1.02]'
                                     : 'bg-white/50 border-transparent opacity-60'
                                 }`}
                         >
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${grid.label === opt.label ? 'bg-memoria-soft text-memoria-primary' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${grid.label === opt.label ? 'bg-memoryes-soft text-memoryes-primary' : 'bg-slate-100 text-slate-400'}`}>
                                 <opt.icon size={28} />
                             </div>
                             <div className="text-left">
-                                <h3 className="font-bold text-memoria-clay text-lg">{opt.label}</h3>
+                                <h3 className="font-bold text-memoryes-clay text-lg">{opt.label}</h3>
                                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{opt.rows}x{opt.cols} Grid</p>
                             </div>
                         </button>
@@ -171,7 +171,7 @@ export default function MemoryMatchGame() {
 
                 <button
                     onClick={() => initGame(grid)}
-                    className="mt-12 w-full bg-memoria-clay text-white py-5 rounded-[2rem] font-bold shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+                    className="mt-12 w-full bg-memoryes-clay text-white py-5 rounded-[2rem] font-bold shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all"
                 >
                     <Play size={20} fill="currentColor" />
                     Initialize Board
@@ -183,12 +183,12 @@ export default function MemoryMatchGame() {
     // --- RENDER: LOADING SCREEN ---
     if (gameState === 'loading') {
         return (
-            <div className="h-screen bg-memoria-background flex flex-col items-center justify-center p-12 text-center">
+            <div className="h-screen bg-memoryes-background flex flex-col items-center justify-center p-12 text-center">
                 <div className="relative">
-                    <Loader2 className="animate-spin text-memoria-primary" size={60} />
-                    <Sparkles className="absolute -top-2 -right-2 text-memoria-accent animate-pulse" size={24} />
+                    <Loader2 className="animate-spin text-memoryes-primary" size={60} />
+                    <Sparkles className="absolute -top-2 -right-2 text-memoryes-accent animate-pulse" size={24} />
                 </div>
-                <h2 className="text-2xl font-serif italic text-memoria-clay mt-8">Shuffling your history</h2>
+                <h2 className="text-2xl font-serif italic text-memoryes-clay mt-8">Shuffling your history</h2>
                 <p className="text-xs font-bold uppercase tracking-[3px] text-slate-400 mt-2">Preparing the cards...</p>
             </div>
         );
@@ -196,25 +196,25 @@ export default function MemoryMatchGame() {
 
     // --- RENDER: GAMEPLAY ---
     return (
-        <div className="min-h-screen bg-memoria-background p-6 flex flex-col">
+        <div className="min-h-screen bg-memoryes-background p-6 flex flex-col">
             <header className="pt-12 flex justify-between items-center mb-8">
                 <button onClick={() => setGameState('settings')} className="p-3 bg-white rounded-2xl shadow-sm text-slate-400">
                     <ChevronLeft size={24} />
                 </button>
                 <div className="flex flex-col items-center text-center">
-                    <h1 className="text-xl font-serif italic text-memoria-clay leading-none">The Vault Match</h1>
+                    <h1 className="text-xl font-serif italic text-memoryes-clay leading-none">The Vault Match</h1>
                     <div className="flex items-center gap-4 mt-3">
                         <div className="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full shadow-sm">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Moves:</span>
-                            <span className="text-xs font-black text-memoria-primary">{moves}</span>
+                            <span className="text-xs font-black text-memoryes-primary">{moves}</span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full shadow-sm">
                             <Heart size={10} className="text-rose-400 fill-rose-400" />
-                            <span className="text-xs font-black text-memoria-clay">{matches}/{(grid.rows * grid.cols) / 2}</span>
+                            <span className="text-xs font-black text-memoryes-clay">{matches}/{(grid.rows * grid.cols) / 2}</span>
                         </div>
                     </div>
                 </div>
-                <button onClick={() => initGame(grid)} className="p-3 bg-white rounded-2xl shadow-sm text-memoria-primary active:rotate-180 transition-transform duration-500">
+                <button onClick={() => initGame(grid)} className="p-3 bg-white rounded-2xl shadow-sm text-memoryes-primary active:rotate-180 transition-transform duration-500">
                     <RotateCcw size={24} />
                 </button>
             </header>
@@ -258,7 +258,7 @@ export default function MemoryMatchGame() {
                             </div>
 
                             {/* BACK (Logo) */}
-                            <div className="absolute inset-0 backface-hidden bg-memoria-clay rounded-2xl shadow-lg flex items-center justify-center border-4 border-white">
+                            <div className="absolute inset-0 backface-hidden bg-memoryes-clay rounded-2xl shadow-lg flex items-center justify-center border-4 border-white">
                                 <Sparkles className="text-white/20" size={32} />
                             </div>
                         </motion.div>
@@ -271,20 +271,20 @@ export default function MemoryMatchGame() {
                 {gameComplete && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[200] bg-memoria-clay/90 backdrop-blur-md flex items-center justify-center p-8 text-center"
+                        className="fixed inset-0 z-[200] bg-memoryes-clay/90 backdrop-blur-md flex items-center justify-center p-8 text-center"
                     >
                         <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-10 rounded-[4rem] shadow-2xl space-y-6 max-w-sm">
-                            <div className="w-24 h-24 bg-memoria-mint rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl">
+                            <div className="w-24 h-24 bg-memoryes-mint rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl">
                                 <Trophy className="text-emerald-600" size={48} />
                             </div>
                             <div className="space-y-2">
-                                <h2 className="text-4xl font-serif italic text-memoria-clay leading-tight">Masterful.</h2>
+                                <h2 className="text-4xl font-serif italic text-memoryes-clay leading-tight">Masterful.</h2>
                                 <p className="text-slate-400 text-sm">You recalled all {matches} memories in only {moves} attempts.</p>
                             </div>
                             <div className="pt-4 space-y-3">
                                 <button
                                     onClick={() => initGame(grid)}
-                                    className="w-full bg-memoria-primary text-white py-5 rounded-[2rem] font-bold shadow-xl active:scale-95 transition-all"
+                                    className="w-full bg-memoryes-primary text-white py-5 rounded-[2rem] font-bold shadow-xl active:scale-95 transition-all"
                                 >
                                     Play Again
                                 </button>
