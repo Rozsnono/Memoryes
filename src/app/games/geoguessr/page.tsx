@@ -25,8 +25,8 @@ export default function GeoguessrPage() {
     useEffect(() => {
         const fetchGameData = async () => {
             try {
-                const { data: user } = await apiClient.get('/api/auth/me');
-                const { data: allMems } = await apiClient.get(`/api/memories?spaceId=${user.activeSpace}`);
+                const { data: user } = await apiClient.get('/api/auth/me/');
+                const { data: allMems } = await apiClient.get(`/api/memories/?spaceId=${user.activeSpace}`);
 
                 // Only take memories with valid manual or GPS coordinates
                 const pool = allMems.filter((m: any) =>
