@@ -152,7 +152,7 @@ function OnlineGameContent() {
         if (!lobby || !codeParam) return;
         const toastId = toast.loading("Fetching next puzzle...");
         try {
-            const { data: themesData } = await apiClient.get('/api/lucky-wheel/themes');
+            const { data: themesData } = await apiClient.get('/api/lucky-wheel/themes/');
             const activeThemes = themesData.data.filter((t: any) => lobby.themes.includes(t._id));
             const puzzlePool: { phrase: string; category: string }[] = [];
 

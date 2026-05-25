@@ -68,7 +68,7 @@ export default function MemoryMatchGame() {
 
         try {
             const { data: user } = await apiClient.get('/api/auth/me/');
-            const { data: memories } = await apiClient.get(`/api/memories/random?spaceId=${user.activeSpace}&limit=${totalPairs}`);
+            const { data: memories } = await apiClient.get(`/api/memories/random/?spaceId=${user.activeSpace}&limit=${totalPairs}`);
 
             // Flatten all media and get unique images
             console.log("Fetched Memories:", memories);
