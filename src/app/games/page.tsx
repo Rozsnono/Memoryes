@@ -11,7 +11,8 @@ import {
     Sparkles,
     ChevronRight,
     Lock,
-    FerrisWheel
+    FerrisWheel,
+    Grid
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
@@ -37,12 +38,21 @@ const GAMES = [
         path: "/games/lucky-wheel"
     },
     {
+        id: "sliding-puzzle",
+        title: "Sliding Puzzle",
+        desc: "Rearrange the pieces to reveal a hidden memory.",
+        icon: Grid,
+        color: "bg-memoryes-secondary",
+        status: "Ready",
+        path: "/games/sliding-puzzle"
+    },
+    {
         id: "truth-or-dare",
         title: "Family Truths",
         desc: "Deep questions to spark meaningful conversations.",
         icon: HeartHandshake,
         color: "bg-memoryes-accent",
-        status: "Comming soon!",
+        status: "Coming soon!",
         path: "/games/family-truths"
     },
 

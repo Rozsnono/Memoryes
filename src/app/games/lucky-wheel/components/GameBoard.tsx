@@ -10,7 +10,6 @@ import {
     Quote,
     HelpCircle,
     Trophy,
-    User,
     RefreshCcw,
     History
 } from 'lucide-react';
@@ -102,69 +101,81 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         setWheelResult(null);
     };
 
-    // --- UPDATED GRID LOGIC WITH HYPHENATION ---
+    // --- ENHANCED GRID LOGIC: HYPHENATION + CENTERING ---
     const renderBoardGrid = () => {
-        const COLS = 12; // Fixed column count for mobile readability
+        const COLS = 12;
         const words = remotePuzzle.phrase.toUpperCase().split(' ');
         const activeRows: { char: string; isActive: boolean; isRevealed: boolean }[][] = [];
 
-        let currentWordIndex = 0;
         let workingWords = [...words];
+        let currentLineChars: { char: string; isActive: boolean; isRevealed: boolean }[] = [];
 
-        while (currentWordIndex < workingWords.length) {
-            let row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
-            let remainingSpace = COLS;
-            let currentPos = 0;
+        const pushLine = () => {
+            if (currentLineChars.length === 0) return;
+            // Create full 12-col row initialized as inactive
+            const row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
+            // Calculate start position for centering
+            const startIdx = Math.floor((COLS - currentLineChars.length) / 2);
+            // Place chars into the row
+            currentLineChars.forEach((item, index) => {
+                row[startIdx + index] = item;
+            });
+            activeRows.push(row);
+            currentLineChars = [];
+        };
 
-            // Try to fit words in the current row
-            while (currentWordIndex < workingWords.length) {
-                let word = workingWords[currentWordIndex];
+        for (let i = 0; i < workingWords.length; i++) {
+            let word = workingWords[i];
 
-                // If word is too long for the entire row, we must split and hyphenate
-                if (word.length > COLS) {
-                    const part1 = word.slice(0, COLS - 1) + "-";
-                    const part2 = word.slice(COLS - 1);
+            // Check if we need a space before this word (if not at start of line)
+            const spaceNeeded = currentLineChars.length > 0 ? 1 : 0;
 
-                    // Put part 1 in this row
-                    for (let i = 0; i < part1.length; i++) {
-                        row[i] = {
-                            char: part1[i],
-                            isActive: true,
-                            isRevealed: part1[i] === "-" || revealedLetters.has(part1[i])
-                        };
-                    }
-                    activeRows.push(row);
-                    // Update the word list to include the remainder
-                    workingWords[currentWordIndex] = part2;
-                    // Move to next row immediately since we filled this one
-                    row = Array.from({ length: COLS }, () => ({ char: '', isActive: false, isRevealed: false }));
-                    remainingSpace = COLS;
-                    currentPos = 0;
-                    continue;
-                }
+            // CASE 1: Word is longer than the whole board
+            if (word.length > COLS) {
+                // If there's stuff on current line, push it first
+                if (currentLineChars.length > 0) pushLine();
 
-                // If word fits in remaining space
-                if (word.length <= remainingSpace) {
-                    // Center alignment logic within the row segment
-                    for (let i = 0; i < word.length; i++) {
-                        row[currentPos + i] = {
-                            char: word[i],
-                            isActive: true,
-                            isRevealed: revealedLetters.has(word[i])
-                        };
-                    }
-                    currentPos += word.length + 1; // +1 for space
-                    remainingSpace -= (word.length + 1);
-                    currentWordIndex++;
-                } else {
-                    // Word doesn't fit, break to next row
-                    break;
-                }
+                // Split word
+                const part1 = word.slice(0, COLS - 1) + "-";
+                const remainder = word.slice(COLS - 1);
+
+                // Add part 1 as its own line (already centered by pushLine logic)
+                currentLineChars = part1.split('').map(c => ({
+                    char: c,
+                    isActive: true,
+                    isRevealed: c === '-' || revealedLetters.has(c)
+                }));
+                pushLine();
+
+                // Put remainder back into word list to be processed
+                workingWords.splice(i + 1, 0, remainder);
+                continue;
             }
-            if (row.some(tile => tile.isActive)) {
-                activeRows.push(row);
+
+            // CASE 2: Word fits in current line
+            if (currentLineChars.length + spaceNeeded + word.length <= COLS) {
+                if (spaceNeeded) currentLineChars.push({ char: ' ', isActive: false, isRevealed: true });
+                word.split('').forEach(c => {
+                    currentLineChars.push({
+                        char: c,
+                        isActive: true,
+                        isRevealed: revealedLetters.has(c)
+                    });
+                });
+            }
+            // CASE 3: Word doesn't fit, start new line
+            else {
+                pushLine();
+                word.split('').forEach(c => {
+                    currentLineChars.push({
+                        char: c,
+                        isActive: true,
+                        isRevealed: revealedLetters.has(c)
+                    });
+                });
             }
         }
+        pushLine(); // Push the final line
 
         return { rows: activeRows, cols: COLS };
     };
@@ -224,7 +235,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
         const occurrences = remotePuzzle.phrase.toUpperCase().split('').filter(c => c === letter).length;
 
         if (occurrences > 0) {
-            const isFullySolved = remotePuzzle.phrase.toUpperCase().split('').every(char => char === ' ' || nextRevealed.has(char));
+            const isFullySolved = remotePuzzle.phrase.toUpperCase().split('').every(char => char === ' ' || char === '-' || nextRevealed.has(char));
             if (isFullySolved) {
                 setPlayers(prev => prev.map((p, idx) => idx === activePlayerIdx ? { ...p, totalScore: p.totalScore + p.roundScore, roundScore: 0 } : p));
                 setGameState('GAME_OVER');
@@ -258,7 +269,6 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                 </div>
             </header>
 
-            {/* Scoreboard HUD */}
             <section className="w-full px-6 mt-4 flex gap-3 overflow-x-auto no-scrollbar py-2 z-40">
                 {players.map((p, idx) => (
                     <motion.div
@@ -279,7 +289,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                 ))}
             </section>
 
-            {/* The Heritage Board */}
+            {/* THE REDESIGNED BOARD GRID */}
             <section className="w-full max-w-lg px-4 my-4 flex-1 flex flex-col justify-center">
                 <motion.div layout className="bg-memoryes-clay p-5 rounded-[3rem] shadow-2xl space-y-1.5 border-8 border-white/10">
                     {boardGrid.map((row, rIdx) => (
@@ -292,12 +302,12 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                                         ? tile.isRevealed
                                             ? 'bg-white text-memoryes-clay'
                                             : 'bg-memoryes-soft/20 border border-white/10'
-                                        : 'opacity-5'
+                                        : 'opacity-0 pointer-events-none'
                                         }`}
                                 >
                                     <AnimatePresence>
                                         {tile.isActive && tile.isRevealed && (
-                                            <motion.span initial={{ rotateY: 180, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} className="text-sm md:text-lg font-black">
+                                            <motion.span initial={{ scale: 0, rotateY: 180 }} animate={{ scale: 1, rotateY: 0 }} className="text-sm md:text-lg font-black select-none">
                                                 {tile.char}
                                             </motion.span>
                                         )}
@@ -312,7 +322,6 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                 </motion.div>
             </section>
 
-            {/* Dynamic Interactive Controls */}
             <section className="w-full max-w-md px-6 z-50">
                 <AnimatePresence mode="wait">
                     {gameState === 'IDLE' && (
@@ -350,7 +359,7 @@ export default function GameBoard({ onBackToMenu, remotePuzzle, gameMode, initia
                                             key={l}
                                             disabled={revealedLetters.has(l)}
                                             onClick={() => gameState === 'SOLVING' ? handleSolveLetterSelect(l) : handleLetterSelect(l, gameState === 'BUYING_VOWEL')}
-                                            className={`aspect-square rounded-xl flex items-center justify-center font-bold transition-all ${revealedLetters.has(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoryes-soft/30 text-memoryes-clay active:bg-memoryes-primary active:text-white'}`}
+                                            className={`aspect-square rounded-xl flex items-center justify-center font-bold transition-all ${revealedLetters.has(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoryes-soft/30 text-memoryes-clay active:scale-90 active:bg-memoryes-primary active:text-white'}`}
                                         >
                                             {l}
                                         </button>

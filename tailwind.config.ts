@@ -13,6 +13,7 @@ const config: Config = {
                 memoryes: {
                     background: "#FDFCFB",
                     primary: "#9B86BD",
+                    secondary: "#d192cd",
                     soft: "#F3E5F5",
                     accent: "#FFD1DC",
                     mint: "#E0F2F1",
