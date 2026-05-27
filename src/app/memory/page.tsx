@@ -224,7 +224,7 @@ function MemoryPageContent() {
             try {
                 const { data: userData } = await apiClient.get('/api/auth/me/');
                 setUser(userData);
-                const { data: memData } = await apiClient.get(`/api/memories/single?id=${id}`);
+                const { data: memData } = await apiClient.get(`/api/memories/single/?id=${id}`);
                 setMemory(memData);
             } catch (err) {
                 router.push('/dashboard');
