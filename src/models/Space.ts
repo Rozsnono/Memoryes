@@ -28,6 +28,11 @@ const SpaceSchema = new Schema({
         type: String,
         default: '#9B86BD'
     },
+    countdown: {
+        title: { type: String, default: "Special Moment" },
+        targetDate: { type: Date },
+        isActive: { type: Boolean, default: false }
+    },
     createdBy: {
         type: String,
         required: true
