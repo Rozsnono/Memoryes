@@ -14,14 +14,13 @@ export const HangmanSketch = ({ mistakes }: { mistakes: number }) => {
     ];
 
     return (
-        <div className="relative flex flex-col items-center justify-center py-12 w-full overflow-hidden">
+        <div className="relative flex flex-col items-center justify-center py-4 w-full overflow-hidden">
             {/* 1. The Clothesline / String */}
-            <div className="absolute top-[45px] left-0 right-0 h-[2px] bg-slate-200 z-0 mx-8 opacity-50" />
 
             <svg
                 width="340"
-                height="200"
-                viewBox="0 0 340 200"
+                height="130"
+                viewBox="0 0 340 130"
                 className="relative z-10 overflow-visible"
             >
                 <AnimatePresence>
@@ -79,29 +78,6 @@ export const HangmanSketch = ({ mistakes }: { mistakes: number }) => {
                     })}
                 </AnimatePresence>
             </svg>
-
-            {/* 3. Status Information */}
-            <div className="mt-10 flex flex-col items-center gap-3">
-                <div className="flex gap-2">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={false}
-                            animate={{
-                                scale: i < (6 - mistakes) ? 1 : 0.6,
-                                backgroundColor: i < (6 - mistakes) ? "#9B86BD" : "#E2E8F0",
-                            }}
-                            className="w-2 h-2 rounded-full"
-                        />
-                    ))}
-                </div>
-                <div className="bg-white/80 backdrop-blur-md px-5 py-2 rounded-full shadow-sm border border-slate-50 flex items-center gap-2">
-                    <Camera size={14} className="text-memoria-primary" />
-                    <span className="text-[10px] font-black uppercase tracking-[3px] text-memoria-clay">
-                        {6 - mistakes} Moments Remaining
-                    </span>
-                </div>
-            </div>
         </div>
     );
 };

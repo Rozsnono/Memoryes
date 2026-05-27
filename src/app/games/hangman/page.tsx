@@ -86,19 +86,22 @@ function HangmanContent() {
 
     const getWordsGrid = (word: string) => {
         const words = word.split(' ');
-        const longestWordLength = Math.max(...words.map(w => w.length));
+        const longestWordLength = Math.max(...words.map(w => w.length), 10);
+        let maxGridLength = 0;
         const grid: string[] = [];
         let row: string[] = [];
         for (const w of words) {
             if (row.join(' ').length + w.length > longestWordLength) {
                 grid.push(row.join(' '));
+                maxGridLength = Math.max(maxGridLength, row.join(' ').length);
                 row = [w];
             } else {
                 row.push(w);
             }
         }
         grid.push(row.join(' '));
-        return { grid, longestWordLength };
+        maxGridLength = Math.max(maxGridLength, row.join(' ').length);
+        return { grid, maxGridLength };
     }
 
     if (loading) return (
@@ -170,7 +173,7 @@ function HangmanContent() {
                     {getWordsGrid(game.word).grid.map((row: string, ri: number) => (
                         <div key={ri} className="w-full max-w-md flex gap-2 justify-center">
                             {row.split('').map((letter: string, i: number) => {
-                                const width = `${100 / getWordsGrid(game.word).longestWordLength}%`;
+                                const width = `${100 / getWordsGrid(game.word).maxGridLength}%`;
                                 return (
                                     <div key={i} style={{ width }} className={`h-10 border-b-4 flex items-center justify-center font-black transition-all ${letter === ' ' ? 'border-transparent mx-2' : 'border-memoryes-soft'}`}>
                                         <span className={game.guessedLetters.includes(letter) ? "opacity-100" : isCreator ? "opacity-25 text-memoryes-primary" : "opacity-0"}>
@@ -214,7 +217,7 @@ function HangmanContent() {
 
                 {/* Guesser Controls */}
                 {(!isCreator && (game.status === 'playing' || game.status === 'waiting')) ? (
-                    <div className="grid grid-cols-8 gap-2 max-w-sm px-4">
+                    <div className="grid grid-cols-7 gap-2 max-w-sm px-4">
                         {ALPHABET.map(l => {
                             const isGuessed = game.guessedLetters.includes(l);
                             return (
