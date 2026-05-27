@@ -84,6 +84,23 @@ function HangmanContent() {
         }
     };
 
+    const getWordsGrid = (word: string) => {
+        const words = word.split(' ');
+        const longestWordLength = Math.max(...words.map(w => w.length));
+        const grid: string[] = [];
+        let row: string[] = [];
+        for (const w of words) {
+            if (row.join(' ').length + w.length > longestWordLength) {
+                grid.push(row.join(' '));
+                row = [w];
+            } else {
+                row.push(w);
+            }
+        }
+        grid.push(row.join(' '));
+        return { grid, longestWordLength };
+    }
+
     if (loading) return (
         <div className="h-screen flex flex-col items-center justify-center bg-memoryes-background">
             <Loader2 className="animate-spin text-memoryes-primary mb-4" size={32} />
@@ -144,16 +161,24 @@ function HangmanContent() {
                 <div className="w-12" />
             </header>
 
-            <div className="flex-1 flex flex-col items-center justify-center w-full">
+            <div className="flex-1 flex flex-col items-center justify-start w-full">
                 <HangmanSketch mistakes={game.wrongGuesses} />
 
                 {/* --- THE WORD GRID --- */}
-                <div className="flex flex-wrap justify-center gap-2 my-10 px-4">
-                    {game.word.split('').map((letter: string, i: number) => (
-                        <div key={i} className={`w-8 h-10 border-b-4 flex items-center justify-center text-xl font-black transition-all ${letter === ' ' ? 'border-transparent mx-2' : 'border-memoryes-soft'}`}>
-                            <span className={game.guessedLetters.includes(letter) ? "opacity-100" : isCreator ? "opacity-25 text-memoryes-primary" : "opacity-0"}>
-                                {letter}
-                            </span>
+                <div className="flex flex-wrap justify-center gap-2 my-10 px-4 w-full">
+
+                    {getWordsGrid(game.word).grid.map((row: string, ri: number) => (
+                        <div key={ri} className="w-full max-w-md flex gap-2 justify-center">
+                            {row.split('').map((letter: string, i: number) => {
+                                const width = `${100 / getWordsGrid(game.word).longestWordLength}%`;
+                                return (
+                                    <div key={i} style={{ width }} className={`h-10 border-b-4 flex items-center justify-center font-black transition-all ${letter === ' ' ? 'border-transparent mx-2' : 'border-memoryes-soft'}`}>
+                                        <span className={game.guessedLetters.includes(letter) ? "opacity-100" : isCreator ? "opacity-25 text-memoryes-primary" : "opacity-0"}>
+                                            {letter}
+                                        </span>
+                                    </div>
+                                )
+                            })}
                         </div>
                     ))}
                 </div>
@@ -176,8 +201,8 @@ function HangmanContent() {
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 shadow-sm ${isHit
-                                            ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
-                                            : 'bg-rose-50 border-rose-500 text-rose-600'
+                                        ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
+                                        : 'bg-rose-50 border-rose-500 text-rose-600'
                                         }`}
                                 >
                                     {l}
@@ -189,7 +214,7 @@ function HangmanContent() {
 
                 {/* Guesser Controls */}
                 {(!isCreator && (game.status === 'playing' || game.status === 'waiting')) ? (
-                    <div className="grid grid-cols-6 gap-2 max-w-sm px-4">
+                    <div className="grid grid-cols-8 gap-2 max-w-sm px-4">
                         {ALPHABET.map(l => {
                             const isGuessed = game.guessedLetters.includes(l);
                             return (

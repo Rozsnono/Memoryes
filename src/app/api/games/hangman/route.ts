@@ -47,6 +47,10 @@ export async function PATCH(req: Request) {
         await game.save();
         await pusherServer.trigger(game.spaceId, 'game-update', game);
 
+        if (game.status === 'won' || game.status === 'lost') {
+            await Hangman.deleteMany({ spaceId: game.spaceId });
+        }
+
         return corsResponse(NextResponse.json(game), req);
     } catch (e: any) {
         return corsResponse(NextResponse.json({ error: e.message }, { status: 500 }), req);
