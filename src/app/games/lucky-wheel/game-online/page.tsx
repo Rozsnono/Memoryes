@@ -246,14 +246,14 @@ function OnlineGameContent() {
         return rows;
     };
 
-    if (loading || !lobby) return <div className="h-screen bg-memoria-background flex flex-col items-center justify-center"><Loader2 className="animate-spin text-memoria-primary" size={40} /></div>;
+    if (loading || !lobby) return <div className="h-screen bg-memoryes-background flex flex-col items-center justify-center"><Loader2 className="animate-spin text-memoryes-primary" size={40} /></div>;
 
     const activePlayerName = lobby.players[lobby.activePlayerIdx];
     const isMyTurn = activePlayerName === onlinePlayerName;
     const boardGrid = renderBoardGrid();
 
     return (
-        <div className="min-h-screen w-full bg-memoria-background text-memoria-clay flex flex-col items-center justify-between pb-10 relative overflow-hidden">
+        <div className="min-h-screen w-full bg-memoryes-background text-memoryes-clay flex flex-col items-center justify-between pb-10 relative overflow-hidden">
 
             <header className="w-full p-6 pt-12 flex justify-between items-center bg-white/50 backdrop-blur-md border-b border-slate-100 z-50">
                 <button onClick={() => router.push('/games')} className="p-3 bg-white rounded-2xl shadow-sm text-slate-400"><ChevronLeft size={20} /></button>
@@ -262,27 +262,27 @@ function OnlineGameContent() {
                     <h2 className="text-sm font-bold uppercase tracking-widest">{lobby.code}</h2>
                 </div>
                 <div className="text-right">
-                    <p className="text-[8px] font-black uppercase text-memoria-primary">Contributor</p>
-                    <h3 className={`text-md font-serif italic ${isMyTurn ? 'text-memoria-primary' : 'text-slate-400'}`}>{isMyTurn ? 'Your Turn' : activePlayerName}</h3>
+                    <p className="text-[8px] font-black uppercase text-memoryes-primary">Contributor</p>
+                    <h3 className={`text-md font-serif italic ${isMyTurn ? 'text-memoryes-primary' : 'text-slate-400'}`}>{isMyTurn ? 'Your Turn' : activePlayerName}</h3>
                 </div>
             </header>
 
             <section className="w-full px-6 mt-4 flex gap-3 overflow-x-auto no-scrollbar py-2">
                 {lobby.players.map((name, idx) => (
                     <motion.div key={idx} animate={{ scale: idx === lobby.activePlayerIdx ? 1.05 : 1, backgroundColor: idx === lobby.activePlayerIdx ? '#FFF' : 'rgba(255,255,255,0.4)', borderColor: idx === lobby.activePlayerIdx ? '#9B86BD' : 'transparent' }} className="min-w-[130px] p-4 rounded-[2rem] border-2 shadow-sm flex flex-col items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 font-black text-[10px] ${idx === lobby.activePlayerIdx ? 'bg-memoria-primary text-white' : 'bg-memoria-soft'}`}>{name.charAt(0)}</div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 font-black text-[10px] ${idx === lobby.activePlayerIdx ? 'bg-memoryes-primary text-white' : 'bg-memoryes-soft'}`}>{name.charAt(0)}</div>
                         <p className="text-[10px] font-bold truncate w-full text-center">{name}</p>
-                        <p className="text-sm font-black text-memoria-primary">{lobby.playerScores[idx]}$</p>
+                        <p className="text-sm font-black text-memoryes-primary">{lobby.playerScores[idx]}$</p>
                     </motion.div>
                 ))}
             </section>
 
             <section className="w-full max-w-lg px-4 my-6 flex-1 flex flex-col justify-center">
-                <div className="bg-memoria-clay p-6 rounded-[3.5rem] shadow-2xl space-y-1.5 border-8 border-white/10">
+                <div className="bg-memoryes-clay p-6 rounded-[3.5rem] shadow-2xl space-y-1.5 border-8 border-white/10">
                     {boardGrid.map((row, rIdx) => (
                         <div key={rIdx} className="flex justify-center gap-1">
                             {row.map((tile, tIdx) => (
-                                <div key={tIdx} style={{ width: `7.5%` }} className={`aspect-[3/4] flex items-center justify-center rounded-md transition-all duration-500 ${tile.isActive ? tile.isRevealed ? 'bg-white text-memoria-clay shadow-lg' : 'bg-memoria-soft/20 border border-white/10' : 'opacity-0'}`}>
+                                <div key={tIdx} style={{ width: `7.5%` }} className={`aspect-[3/4] flex items-center justify-center rounded-md transition-all duration-500 ${tile.isActive ? tile.isRevealed ? 'bg-white text-memoryes-clay shadow-lg' : 'bg-memoryes-soft/20 border border-white/10' : 'opacity-0'}`}>
                                     {tile.isRevealed && <span className="font-black text-xs md:text-sm">{tile.char}</span>}
                                 </div>
                             ))}
@@ -298,10 +298,10 @@ function OnlineGameContent() {
                         <motion.div key="my-turn" initial={{ y: 20 }} animate={{ y: 0 }} className="space-y-4">
                             {lobby.turnState === 'idle' && (
                                 <div className="grid grid-cols-1 gap-3">
-                                    <GameBtn onClick={() => pushStateUpdate({ turnState: 'spinning' })} icon={<Sparkles size={20} />} label="Spin the Wheel" color="bg-memoria-clay text-white shadow-2xl" />
+                                    <GameBtn onClick={() => pushStateUpdate({ turnState: 'spinning' })} icon={<Sparkles size={20} />} label="Spin the Wheel" color="bg-memoryes-clay text-white shadow-2xl" />
                                     <div className="grid grid-cols-2 gap-3">
-                                        <GameBtn onClick={() => pushStateUpdate({ turnState: 'buying_vowel' })} icon={<Quote size={18} />} label="Buy Vowel" color="bg-white text-memoria-clay border border-slate-100 shadow-sm" disabled={lobby.playerScores[lobby.activePlayerIdx] < 250 && lobby.playerTotalScores[lobby.activePlayerIdx] < 250} />
-                                        <GameBtn onClick={() => pushStateUpdate({ turnState: 'solving' })} icon={<HelpCircle size={18} />} label="Solve" color="bg-white text-memoria-clay border border-slate-100 shadow-sm" />
+                                        <GameBtn onClick={() => pushStateUpdate({ turnState: 'buying_vowel' })} icon={<Quote size={18} />} label="Buy Vowel" color="bg-white text-memoryes-clay border border-slate-100 shadow-sm" disabled={lobby.playerScores[lobby.activePlayerIdx] < 250 && lobby.playerTotalScores[lobby.activePlayerIdx] < 250} />
+                                        <GameBtn onClick={() => pushStateUpdate({ turnState: 'solving' })} icon={<HelpCircle size={18} />} label="Solve" color="bg-white text-memoryes-clay border border-slate-100 shadow-sm" />
                                     </div>
                                 </div>
                             )}
@@ -315,11 +315,11 @@ function OnlineGameContent() {
                                                 {lobby.turnState === 'spinned' ? `Pick Consonant (${lobby.currentWheelValue}$)` : lobby.turnState === 'buying_vowel' ? 'Choose Vowel' : 'Solve: Find all letters'}
                                             </span>
                                         </div>
-                                        <button onClick={() => pushStateUpdate({ turnState: 'idle' })} className="text-slate-200 hover:text-memoria-primary transition-colors"><RefreshCcw size={16} /></button>
+                                        <button onClick={() => pushStateUpdate({ turnState: 'idle' })} className="text-slate-200 hover:text-memoryes-primary transition-colors"><RefreshCcw size={16} /></button>
                                     </div>
                                     <div className="grid grid-cols-6 gap-1.5 max-h-48 overflow-y-auto no-scrollbar">
                                         {(lobby.turnState === 'spinned' ? CONSONANTS : lobby.turnState === 'buying_vowel' ? VOWELS : HUNGARIAN_ALPHABET).map(l => (
-                                            <button key={l} disabled={lobby.revealedLetters.includes(l)} onClick={() => lobby.turnState === 'solving' ? handleSolveLetterSelect(l) : handleLetterSelect(l, lobby.turnState === 'buying_vowel')} className={`aspect-square rounded-xl font-bold flex items-center justify-center transition-all ${lobby.revealedLetters.includes(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoria-soft/40 text-memoria-clay active:bg-memoria-primary active:text-white active:scale-90 shadow-sm'}`}>{l}</button>
+                                            <button key={l} disabled={lobby.revealedLetters.includes(l)} onClick={() => lobby.turnState === 'solving' ? handleSolveLetterSelect(l) : handleLetterSelect(l, lobby.turnState === 'buying_vowel')} className={`aspect-square rounded-xl font-bold flex items-center justify-center transition-all ${lobby.revealedLetters.includes(l) ? 'bg-slate-50 text-slate-200' : 'bg-memoryes-soft/40 text-memoryes-clay active:bg-memoryes-primary active:text-white active:scale-90 shadow-sm'}`}>{l}</button>
                                         ))}
                                     </div>
                                 </motion.div>
@@ -327,7 +327,7 @@ function OnlineGameContent() {
                         </motion.div>
                     ) : (
                         <motion.div key="spectator" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-slate-900/95 backdrop-blur-md text-white p-8 rounded-[3rem] text-center space-y-4 shadow-2xl">
-                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto border border-white/5"><Loader2 className="animate-spin text-memoria-primary" size={24} /></div>
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto border border-white/5"><Loader2 className="animate-spin text-memoryes-primary" size={24} /></div>
                             <div><h4 className="text-sm font-bold uppercase tracking-widest">{activePlayerName} is Playing...</h4></div>
                         </motion.div>
                     )}
@@ -336,20 +336,20 @@ function OnlineGameContent() {
 
             <AnimatePresence>
                 {(lobby.turnState === 'game_over' || lobby.turnState === 'round_over') && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] bg-memoria-clay/90 backdrop-blur-md flex items-center justify-center p-8">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] bg-memoryes-clay/90 backdrop-blur-md flex items-center justify-center p-8">
                         <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-10 rounded-[4rem] shadow-2xl w-full max-w-sm text-center space-y-8">
-                            <div className="w-20 h-20 bg-memoria-mint rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl border-4 border-white"><Trophy className="text-emerald-600" size={40} /></div>
-                            <h2 className="text-3xl font-serif italic text-memoria-clay leading-tight">{lobby.turnState === 'game_over' ? 'Championship End' : 'Round Secured'}</h2>
+                            <div className="w-20 h-20 bg-memoryes-mint rounded-[2.5rem] flex items-center justify-center mx-auto shadow-xl border-4 border-white"><Trophy className="text-emerald-600" size={40} /></div>
+                            <h2 className="text-3xl font-serif italic text-memoryes-clay leading-tight">{lobby.turnState === 'game_over' ? 'Championship End' : 'Round Secured'}</h2>
                             <div className="space-y-2 bg-slate-50 p-6 rounded-[2.5rem] border border-slate-100 shadow-inner">
                                 {lobby.players.map((n, i) => (
                                     <div key={i} className="flex justify-between items-center py-1">
-                                        <span className={`text-xs font-bold ${n === onlinePlayerName ? 'text-memoria-primary' : 'text-slate-500'}`}>{n}</span>
-                                        <span className="font-black text-sm text-memoria-clay">{lobby.playerTotalScores[i]}$</span>
+                                        <span className={`text-xs font-bold ${n === onlinePlayerName ? 'text-memoryes-primary' : 'text-slate-500'}`}>{n}</span>
+                                        <span className="font-black text-sm text-memoryes-clay">{lobby.playerTotalScores[i]}$</span>
                                     </div>
                                 ))}
                             </div>
                             <div className="flex flex-col gap-3">
-                                {lobby.turnState === 'round_over' && (lobby.hostName === onlinePlayerName ? <button onClick={handleStartNextRound} className="w-full py-5 bg-memoria-primary text-white rounded-[1.5rem] font-bold shadow-xl active:scale-95 transition-transform">Start Next Round</button> : <div className="p-4 bg-memoria-soft/30 rounded-2xl flex items-center justify-center gap-3"><Loader2 className="animate-spin text-memoria-primary" size={16} /><span className="text-[10px] font-black text-memoria-primary uppercase tracking-[2px]">Awaiting Host...</span></div>)}
+                                {lobby.turnState === 'round_over' && (lobby.hostName === onlinePlayerName ? <button onClick={handleStartNextRound} className="w-full py-5 bg-memoryes-primary text-white rounded-[1.5rem] font-bold shadow-xl active:scale-95 transition-transform">Start Next Round</button> : <div className="p-4 bg-memoryes-soft/30 rounded-2xl flex items-center justify-center gap-3"><Loader2 className="animate-spin text-memoryes-primary" size={16} /><span className="text-[10px] font-black text-memoryes-primary uppercase tracking-[2px]">Awaiting Host...</span></div>)}
                                 <button onClick={() => router.push('/games')} className="w-full py-4 text-slate-300 font-bold uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"><DoorOpen size={14} /> Exit to Lounge</button>
                             </div>
                         </motion.div>
@@ -358,9 +358,9 @@ function OnlineGameContent() {
             </AnimatePresence>
 
             <footer className="w-full max-w-md px-4 pt-6 border-t border-slate-100 space-y-4 flex flex-col items-center">
-                <div className="bg-memoria-soft/50 px-4 py-1.5 rounded-full border border-memoria-primary/10 flex items-center gap-2">
-                    <ShieldCheck size={14} className="text-memoria-primary" />
-                    <span className="text-[10px] font-black text-memoria-primary uppercase tracking-[3px]">Secure Synced Vault</span>
+                <div className="bg-memoryes-soft/50 px-4 py-1.5 rounded-full border border-memoryes-primary/10 flex items-center gap-2">
+                    <ShieldCheck size={14} className="text-memoryes-primary" />
+                    <span className="text-[10px] font-black text-memoryes-primary uppercase tracking-[3px]">Secure Synced Vault</span>
                 </div>
             </footer>
         </div>
@@ -374,5 +374,5 @@ function GameBtn({ onClick, icon, label, color, disabled }: any) {
 function RefreshCcw(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 21h5v-5" /></svg>; }
 
 export default function OnlineGamePage() {
-    return <Suspense fallback={<div className="h-screen bg-memoria-background flex items-center justify-center"><Loader2 className="animate-spin text-memoria-primary" /></div>}><OnlineGameContent /></Suspense>;
+    return <Suspense fallback={<div className="h-screen bg-memoryes-background flex items-center justify-center"><Loader2 className="animate-spin text-memoryes-primary" /></div>}><OnlineGameContent /></Suspense>;
 }

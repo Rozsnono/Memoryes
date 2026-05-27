@@ -6,6 +6,18 @@ if (mongoose.models.Memory) {
     delete mongoose.models.Memory;
 }
 
+const PerspectiveSchema = new Schema({
+    userId: String,
+    userName: String,
+    content: String,
+    capturedAt: { type: Date, default: Date.now },
+    // ADD THIS:
+    reactions: [{
+        userId: String,
+        type: { type: String, enum: ['like', 'heart', 'laugh', 'sad'] }
+    }]
+});
+
 const MemorySchema = new Schema({
     // We use type: String so we can use dummy IDs like 'family_vault_1'
     spaceId: {
@@ -32,12 +44,7 @@ const MemorySchema = new Schema({
             index: '2dsphere'
         }
     },
-    perspectives: [{
-        userId: String,
-        userName: String,
-        content: String,
-        audioUrl: String
-    }],
+    perspectives: [PerspectiveSchema],
     isPinned: { type: Boolean, default: false },
     capturedAt: { type: Date, default: Date.now }
 }, {

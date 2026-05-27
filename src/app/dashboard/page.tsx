@@ -10,11 +10,14 @@ import { MemoryDetailsView } from "@/components/MemoryDetailsView";
 import { SpaceSwitcher } from "@/components/SpaceSwitcher";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const [memories, setMemories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+
+  const router = useRouter();
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
@@ -139,7 +142,7 @@ export default function Dashboard() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  onClick={() => setSelectedMemory(memory)}
+                  onClick={() => router.push(`/memory?id=${memory._id}`)} // CHANGE THIS
                   className="relative rounded-[2rem] overflow-hidden shadow-sm border border-white cursor-pointer active:scale-95 transition-transform"
                 >
                   <img
@@ -188,7 +191,7 @@ export default function Dashboard() {
       {/* MODALS */}
       <UploadMemory isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} onRefresh={fetchData} />
       {
-        !loading && filteredMemories.length > 0 && 
+        !loading && filteredMemories.length > 0 &&
         <MemoryDetailsView memory={selectedMemory} isOpen={!!selectedMemory} onClose={() => setSelectedMemory(null)} />
       }
       <Navbar />
