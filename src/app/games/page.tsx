@@ -15,7 +15,9 @@ import {
     MessageCircleIcon,
     Loader2,
     Sparkles,
-    CircleDot
+    CircleDot,
+    UserPen,
+    PictureInPicture
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
@@ -29,7 +31,8 @@ const GAMES = [
         icon: Brain,
         color: "bg-memoryes-primary",
         status: "Ready",
-        path: "/games/memory-match"
+        path: "/games/memory-match",
+        isMultiplayer: false
     },
     {
         id: "luckywheel",
@@ -38,7 +41,8 @@ const GAMES = [
         icon: FerrisWheel,
         color: "bg-memoryes-accent",
         status: "Ready",
-        path: "/games/lucky-wheel"
+        path: "/games/lucky-wheel",
+        isMultiplayer: true
     },
     {
         id: "sliding-puzzle",
@@ -47,7 +51,8 @@ const GAMES = [
         icon: Grid,
         color: "bg-memoryes-secondary",
         status: "Ready",
-        path: "/games/sliding-puzzle"
+        path: "/games/sliding-puzzle",
+        isMultiplayer: false
     },
     {
         id: "geoguessr",
@@ -56,7 +61,8 @@ const GAMES = [
         icon: MapPin,
         color: "bg-memoryes-primary",
         status: "Ready",
-        path: "/games/geoguessr"
+        path: "/games/geoguessr",
+        isMultiplayer: false
     },
     {
         id: "perspectives",
@@ -65,16 +71,28 @@ const GAMES = [
         icon: MessageCircleIcon,
         color: "bg-memoryes-accent",
         status: "Ready",
-        path: "/games/echo-challenge"
+        path: "/games/echo-challenge",
+        isMultiplayer: false
     },
     {
         id: "hangman",
         title: "Hangman",
         desc: "Create a hidden phrase for your family to solve.",
-        icon: Gamepad2,
+        icon: UserPen,
         color: "bg-memoryes-secondary",
         status: "Ready",
-        path: "/games/hangman"
+        path: "/games/hangman",
+        isMultiplayer: true
+    },
+    {
+        id: "fragment-recall",
+        title: "Fragment Recall",
+        desc: "Test your memory by recalling fragments of your vault's photos.",
+        icon: PictureInPicture,
+        color: "bg-memoryes-primary",
+        status: "Ready",
+        path: "/games/fragment-recall",
+        isMultiplayer: false
     },
     {
         id: "truth-or-dare",
@@ -119,7 +137,7 @@ export default function GamesPage() {
             <header className="p-8 pt-20">
                 <div className="flex justify-between items-start mb-2">
                     <div>
-                        <h1 className="text-4xl font-serif italic text-memoryes-clay leading-tight">Lounge</h1>
+                        <h1 className="text-4xl font-serif italic text-memoryes-clay leading-tight">Games</h1>
                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-[4px] mt-2">
                             Connect through Play
                         </p>
@@ -196,10 +214,58 @@ export default function GamesPage() {
                 {/* 3. GAME COLLECTION */}
                 <section className="space-y-4">
                     <div className="px-2">
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[3px]">The Collection</span>
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[3px]">Family games</span>
                     </div>
 
-                    {GAMES.map((game, idx) => (
+                    {GAMES.filter(f => f.isMultiplayer).map((game, idx) => (
+                        <motion.div
+                            key={game.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + (idx * 0.05) }}
+                            onClick={() => game.status === "Ready" && router.push(game.path)}
+                            className={`relative p-6 rounded-[2.5rem] border-2 transition-all cursor-pointer flex items-center gap-6 ${game.status === "Ready"
+                                ? "bg-white border-white shadow-sm active:scale-[0.98]"
+                                : "bg-slate-50/50 border-transparent opacity-60 grayscale cursor-not-allowed"
+                                }`}
+                        >
+                            {/* Icon Container */}
+                            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center shadow-lg ${game.color} text-white`}>
+                                <game.icon size={32} />
+                            </div>
+
+                            {/* Text Content */}
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="font-bold text-memoryes-clay text-lg leading-none">{game.title}</h3>
+                                    {game.status !== "Ready" && (
+                                        <span className="bg-slate-200 text-slate-500 text-[8px] font-black uppercase px-2 py-0.5 rounded-full">
+                                            Soon
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs text-slate-400 leading-relaxed max-w-[180px]">
+                                    {game.desc}
+                                </p>
+                            </div>
+
+                            {/* Action Icon */}
+                            <div className="text-slate-200">
+                                {game.status === "Ready" ? <ChevronRight size={20} /> : <Lock size={16} />}
+                            </div>
+
+                            {/* Decoration Background */}
+                            {game.status === "Ready" && (
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-transparent to-slate-50/20 rounded-bl-full pointer-events-none" />
+                            )}
+                        </motion.div>
+                    ))}
+
+                    <div className="px-2">
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-[3px]">Local games</span>
+                    </div>
+
+                    {GAMES.filter(f => !f.isMultiplayer).map((game, idx) => (
                         <motion.div
                             key={game.id}
                             initial={{ opacity: 0, y: 20 }}
