@@ -46,7 +46,7 @@ function ChessContent() {
                 setUser(userData);
 
                 if (gameId) {
-                    const { data: gameData } = await apiClient.patch('/api/games/chess/join', {
+                    const { data: gameData } = await apiClient.patch('/api/games/chess/join/', {
                         gameId, userId: userData._id, userName: userData.name, spaceId: userData.activeSpace
                     });
 
@@ -94,7 +94,7 @@ function ChessContent() {
                     setBoard(game.current.board());
                     setSelectedSquare(null);
                     setOptionSquares([]);
-                    await apiClient.patch('/api/games/chess/move', {
+                    await apiClient.patch('/api/games/chess/move/', {
                         gameId: dbGame._id, fen: game.current.fen(), move: move.san, spaceId: user.activeSpace
                     });
                     return;
@@ -115,6 +115,13 @@ function ChessContent() {
     };
 
     if (loading) return <div className="h-screen flex items-center justify-center bg-memoryes-background"><Loader2 className="animate-spin text-memoryes-primary" /></div>;
+
+
+    const startNew = async (side: string) => {
+        setLoading(true);
+        const { data } = await apiClient.post('/api/games/chess/', { spaceId: user.activeSpace, userId: user._id, userName: user.name, side });
+        router.push(`/games/chess/?id=${data._id}`);
+    };
 
     if (!gameId) {
         return (
@@ -145,11 +152,6 @@ function ChessContent() {
         );
     }
 
-    const startNew = async (side: string) => {
-        setLoading(true);
-        const { data } = await apiClient.post('/api/games/chess', { spaceId: user.activeSpace, userId: user._id, userName: user.name, side });
-        router.push(`/games/chess?id=${data._id}`);
-    };
 
     // --- BOARD RENDER LOGIC ---
     const rows = [0, 1, 2, 3, 4, 5, 6, 7];

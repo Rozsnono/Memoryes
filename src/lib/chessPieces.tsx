@@ -7,13 +7,13 @@ export type Color = 'white' | 'black';
 export const Pieces = ({ symbol, color }: { symbol: PieceSymbol; color: Color }): JSX.Element => {
     if (color === 'white') {
         return (
-            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45">
+            <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" style={{ filter: "drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5))", transform: "scale(0.80)" }}>
                 {pieceData[`${symbol}_w`]}
             </svg>
         )
     }
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45">
+        <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" style={{ filter: "drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5))", transform: "scale(0.80)" }}>
             {pieceData[symbol]}
         </svg>
     )

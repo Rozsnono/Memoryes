@@ -84,6 +84,36 @@ function MemoryScrollUI({ memory, user, setMemory }: any) {
         }
     };
 
+    const handleAddMedia = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        const fileArray = Array.from(files);
+        setIsUploadingMedia(true);
+        const toastId = toast.loading(`Uploading ${fileArray.length} items...`);
+
+        try {
+            const { data: signData } = await apiClient.post('/api/media/sign/');
+            for (let i = 0; i < fileArray.length; i++) {
+                const file = fileArray[i];
+                const resourceType = file.type.startsWith('video') ? 'video' : 'image';
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('api_key', signData.apiKey);
+                formData.append('timestamp', signData.timestamp);
+                formData.append('signature', signData.signature);
+                formData.append('folder', 'memoryes_vault');
+                const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${signData.cloudName}/${resourceType}/upload`, { method: 'POST', body: formData });
+                const cloudData = await cloudRes.json();
+                const { data: updated } = await apiClient.post('/api/memories/media/', {
+                    memoryId: memory._id, url: cloudData.secure_url, publicId: cloudData.public_id, mediaType: resourceType
+                });
+                setMemory(updated);
+            }
+            toast.success("Gallery updated!", { id: toastId });
+        } catch (err) { toast.error("Upload failed", { id: toastId }); }
+        finally { setIsUploadingMedia(false); }
+    };
+
     const handleDownload = async () => {
         const url = memory.media[activeIndex]?.url;
         if (!url) return;
@@ -143,6 +173,10 @@ function MemoryScrollUI({ memory, user, setMemory }: any) {
                                 <Edit2 size={18} />
                             </button>
                         )}
+                        <label className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white cursor-pointer active:scale-90 transition-transform">
+                            {isUploadingMedia ? <Loader2 className="animate-spin" size={18} /> : <Plus size={20} />}
+                            <input type="file" className="hidden" multiple accept="image/*,video/*" onChange={handleAddMedia} disabled={isUploadingMedia || isEditing} />
+                        </label>
                         <button onClick={handleDownload} disabled={isDownloading} className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white">
                             {isDownloading ? <Loader2 className="animate-spin" size={18} /> : <Download size={20} />}
                         </button>

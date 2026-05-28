@@ -18,11 +18,13 @@ import {
     CircleDot,
     UserPen,
     PictureInPicture,
+    ChessQueen,
     LineChart
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
 import apiClient from "@/lib/apiClient";
+import { Pieces } from "@/lib/chessPieces";
 
 const GAMES = [
     {
@@ -61,7 +63,7 @@ const GAMES = [
         desc: "Guess the location of your vault's memories.",
         icon: MapPin,
         color: "bg-memoryes-primary",
-        status: "Ready",
+        status: "Coming soon!",
         path: "/games/geoguessr",
         isMultiplayer: false
     },
@@ -96,20 +98,10 @@ const GAMES = [
         isMultiplayer: false
     },
     {
-        id: "timeline-sync",
-        title: "Timeline Sync",
-        desc: "Synchronize your family's memories in real-time.",
-        icon: LineChart,
-        color: "bg-memoryes-accent",
-        status: "Ready",
-        path: "/games/timeliner",
-        isMultiplayer: true
-    },
-    {
         id: "chess",
         title: "Chess",
         desc: "Challenge your family to a strategic game of chess.",
-        icon: Gamepad2,
+        icon: ChessQueen,
         color: "bg-memoryes-secondary",
         status: "Ready",
         path: "/games/chess",
@@ -215,21 +207,8 @@ export default function GamesPage() {
                                         {game.creatorId === user?._id ? "Your Secret Echo" : `${game.creatorName}'s Challenge`}
                                     </p>
                                     <h4 className="text-lg font-serif italic text-memoryes-clay truncate mb-4">
-                                        "{game.title}"
+                                        {game.title}
                                     </h4>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex -space-x-2">
-                                            <div className="w-7 h-7 rounded-full bg-memoryes-soft border-2 border-white flex items-center justify-center text-[10px] font-bold text-memoryes-primary">
-                                                {game.creatorName.charAt(0)}
-                                            </div>
-                                            <div className="w-7 h-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400 italic">
-                                                ?
-                                            </div>
-                                        </div>
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-1">
-                                            {game.creatorId === user?._id ? "View Status" : "Solve This"} <ChevronRight size={14} />
-                                        </span>
-                                    </div>
                                 </motion.div>
                             ))}
                         </div>

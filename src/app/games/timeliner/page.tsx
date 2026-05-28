@@ -42,7 +42,7 @@ function TimelineSyncContent() {
                 });
 
                 if (gameId) {
-                    const { data: gameData } = await apiClient.get(`/api/games/timeline/single?id=${gameId}`);
+                    const { data: gameData } = await apiClient.get(`/api/games/timeline/single/?id=${gameId}`);
                     setItems([...gameData.photos].sort(() => Math.random() - 0.5));
                     setGameState('playing');
                 }
