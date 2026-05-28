@@ -106,6 +106,16 @@ const GAMES = [
         isMultiplayer: true
     },
     {
+        id: "chess",
+        title: "Chess",
+        desc: "Challenge your family to a strategic game of chess.",
+        icon: Gamepad2,
+        color: "bg-memoryes-secondary",
+        status: "Ready",
+        path: "/games/chess",
+        isMultiplayer: true
+    },
+    {
         id: "truth-or-dare",
         title: "Family Truths",
         desc: "Deep questions to spark meaningful conversations.",
@@ -135,7 +145,11 @@ export default function GamesPage() {
 
                 const { data: timelineGames } = await apiClient.get(`/api/games/timeline/active/?spaceId=${userData.activeSpace}`);
 
-                const allActiveGames = [...games.map((game: any) => ({ ...game, click: () => router.push(`/games/hangman?id=${game._id}`) })), ...timelineGames.map((game: any) => ({ ...game, click: () => router.push(`/games/timeliner?id=${game._id}`) }))];
+                const { data: chessGames } = await apiClient.get(`/api/games/chess/active/?spaceId=${userData.activeSpace}`);
+
+                const allActiveGames = [...games.map((game: any) => ({ ...game, title: game.category, click: () => router.push(`/games/hangman?id=${game._id}`) })),
+                ...timelineGames.map((game: any) => ({ ...game, title: 'Timeline Sync', click: () => router.push(`/games/timeliner?id=${game._id}`) })),
+                ...chessGames.map((game: any) => ({ ...game, title: 'Chess', click: () => router.push(`/games/chess?id=${game._id}`) }))];
                 setActiveChallenges(allActiveGames);
             } catch (err) {
                 console.error("Lounge synchronization failed", err);
@@ -166,7 +180,7 @@ export default function GamesPage() {
             <main className="px-6 space-y-10">
 
                 {/* 2. LIVE CHALLENGES SECTION */}
-                <section>
+                <section className="no-scrollbar">
                     <div className="flex items-center justify-between mb-4 px-2">
                         <div className="flex items-center gap-2">
                             <Sparkles size={14} className="text-memoryes-primary" />
@@ -201,7 +215,7 @@ export default function GamesPage() {
                                         {game.creatorId === user?._id ? "Your Secret Echo" : `${game.creatorName}'s Challenge`}
                                     </p>
                                     <h4 className="text-lg font-serif italic text-memoryes-clay truncate mb-4">
-                                        "{game.category}"
+                                        "{game.title}"
                                     </h4>
                                     <div className="flex items-center justify-between">
                                         <div className="flex -space-x-2">
