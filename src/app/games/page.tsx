@@ -17,7 +17,8 @@ import {
     Sparkles,
     CircleDot,
     UserPen,
-    PictureInPicture
+    PictureInPicture,
+    LineChart
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/Navbar";
@@ -95,6 +96,16 @@ const GAMES = [
         isMultiplayer: false
     },
     {
+        id: "timeline-sync",
+        title: "Timeline Sync",
+        desc: "Synchronize your family's memories in real-time.",
+        icon: LineChart,
+        color: "bg-memoryes-accent",
+        status: "Ready",
+        path: "/games/timeliner",
+        isMultiplayer: true
+    },
+    {
         id: "truth-or-dare",
         title: "Family Truths",
         desc: "Deep questions to spark meaningful conversations.",
@@ -121,7 +132,11 @@ export default function GamesPage() {
                 // 2. Fetch active family challenges (Hangman/Secret Echo)
                 // Ensure this API endpoint exists from the previous steps
                 const { data: games } = await apiClient.get(`/api/games/hangman/active/?spaceId=${userData.activeSpace}`);
-                setActiveChallenges(games);
+
+                const { data: timelineGames } = await apiClient.get(`/api/games/timeline/active/?spaceId=${userData.activeSpace}`);
+
+                const allActiveGames = [...games.map((game: any) => ({ ...game, click: () => router.push(`/games/hangman?id=${game._id}`) })), ...timelineGames.map((game: any) => ({ ...game, click: () => router.push(`/games/timeliner?id=${game._id}`) }))];
+                setActiveChallenges(allActiveGames);
             } catch (err) {
                 console.error("Lounge synchronization failed", err);
             } finally {
@@ -177,7 +192,7 @@ export default function GamesPage() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.1 }}
-                                    onClick={() => router.push(`/games/hangman?id=${game._id}`)}
+                                    onClick={game.click}
                                     className="min-w-[260px] bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 relative overflow-hidden active:scale-95 transition-transform"
                                 >
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-memoryes-primary/5 rounded-bl-full pointer-events-none" />
