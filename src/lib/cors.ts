@@ -26,7 +26,7 @@ async function saveLog(req: Request, res: NextResponse, startTime: number) {
     }
 }
 
-export function corsResponse(response: NextResponse, request: Request, startTime?: number) {
+export function corsResponse(response: NextResponse, request: Request, startTime: number = new Date().getTime()) {
     const origin = request.headers.get("origin");
 
     const allowedOrigins = [
