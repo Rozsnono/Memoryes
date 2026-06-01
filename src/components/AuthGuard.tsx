@@ -14,7 +14,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         const checkAuth = async () => {
             // 1. Normalize the path (remove trailing slashes for comparison)
             const normalizedPath = pathname.replace(/\/$/, "") || "/";
-            const publicRoutes = ["/login", "/register", "/"];
+            const publicRoutes = ["/login", "/register", "/", "/admin"]; // Add any other public routes here
             const isPublicRoute = publicRoutes.includes(normalizedPath);
 
             const token = localStorage.getItem("memoryes_token");
@@ -58,7 +58,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     // Show loader while checking authentication for private routes
     const normalizedPath = pathname.replace(/\/$/, "") || "/";
-    const isPublicRoute = ["/login", "/register", "/"].includes(normalizedPath);
+    const isPublicRoute = ["/login", "/register", "/", "/admin"].includes(normalizedPath);
 
     if (checking && !isPublicRoute) {
         return (
