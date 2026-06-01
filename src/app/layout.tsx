@@ -18,8 +18,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       if (Capacitor.isNativePlatform()) {
 
         await App.addListener('backButton', ({ canGoBack }) => {
-          // If we are on a main page (Dashboard/Login) and can't go back further
-          if (pathname === '/dashboard' || pathname === '/login' || !canGoBack) {
+          // If we are on a main page (Dashboard/Login/Admin) and can't go back further
+          if (pathname === '/dashboard' || pathname === '/login' || pathname === '/admin' || !canGoBack) {
             // Option A: Exit the app
             App.exitApp();
 
