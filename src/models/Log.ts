@@ -8,6 +8,7 @@ const LogSchema = new Schema({
     ip: String,
     userAgent: String,
     duration: Number, // ms
+    errorMessage: String,
     payload: Schema.Types.Mixed,
 }, { timestamps: true });
 

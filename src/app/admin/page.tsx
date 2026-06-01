@@ -14,7 +14,7 @@ export default function AdminLogs() {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const { data } = await apiClient.get('/api/admin/logs/');
+            const { data } = await apiClient.get('/api/logs/');
             setLogs(data);
         } finally {
             setLoading(false);

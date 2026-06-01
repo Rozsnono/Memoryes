@@ -7,7 +7,8 @@ export async function logRequest(
     res: NextResponse,
     startTime: number,
     user?: any,
-    payload?: any
+    payload?: any,
+    errorMsg?: string
 ) {
     try {
         await connectDB();
@@ -25,6 +26,7 @@ export async function logRequest(
             userName: user?.name || 'Guest',
             ip: req.headers.get('x-forwarded-for') || '127.0.0.1',
             userAgent: req.headers.get('user-agent'),
+            errorMessage: errorMsg || null, // <--- SAVE ERROR HERE
             duration,
             // Only log payload for non-GET requests and mask passwords
             payload: req.method !== 'GET' ? JSON.parse(JSON.stringify(payload || {})) : null

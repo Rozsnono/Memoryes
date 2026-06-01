@@ -5,7 +5,7 @@ import { Log } from "@/models/Log";
 /**
  * Background worker to save logs to MongoDB
  */
-async function saveLog(req: Request, res: NextResponse, startTime: number) {
+async function saveLog(req: Request, res: NextResponse, startTime: number, errorMsg?: string) {
     try {
         await connectDB();
         const { pathname } = new URL(req.url);
@@ -20,13 +20,14 @@ async function saveLog(req: Request, res: NextResponse, startTime: number) {
             duration: Date.now() - startTime,
             ip: req.headers.get("x-forwarded-for") || "127.0.0.1",
             userAgent: req.headers.get("user-agent") || "unknown",
+            errorMessage: errorMsg || null,
         });
     } catch (error) {
         console.error("Logging Error:", error);
     }
 }
 
-export function corsResponse(response: NextResponse, request: Request, startTime: number = new Date().getTime()) {
+export async function corsResponse(response: NextResponse, request: Request, startTime: number = new Date().getTime()) {
     const origin = request.headers.get("origin");
 
     const allowedOrigins = [
@@ -52,7 +53,8 @@ export function corsResponse(response: NextResponse, request: Request, startTime
     // If the request is NOT a preflight (OPTIONS) and we have a start time, log it
     if (request.method !== 'OPTIONS' && startTime) {
         // We don't use 'await' here so the API response returns immediately to the user
-        saveLog(request, response, startTime);
+        const responseClone = response.clone(); // Clone the response to read its status and text without affecting the original response
+        saveLog(request, response, startTime, responseClone.status > 200 ? `Error ${await responseClone.text()}` : undefined);
     }
 
     return response;
